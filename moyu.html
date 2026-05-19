@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>摸鱼百科</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f2;
+      --panel: #ffffff;
+      --text: #18201b;
+      --muted: #657068;
+      --line: #dce4dd;
+      --accent: #31765a;
+      --accent-2: #d77c3f;
+      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
+        var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
+        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
+        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
+        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
+        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
+        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.48;
+      background-image:
+        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
+        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
+      background-size: 260px 260px, 310px 310px;
+      background-position: right 76px top 68px, left 54px bottom 80px;
+      background-repeat: no-repeat;
+    }
+
+    .app {
+      position: relative;
+      z-index: 0;
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .back,
+    .shuffle {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 760;
+      white-space: nowrap;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .shuffle {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .site {
+      min-height: 184px;
+      display: grid;
+      align-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .site:hover {
+      border-color: rgba(49, 118, 90, .48);
+      transform: translateY(-1px);
+    }
+
+    .tag {
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef5ef;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .open {
+      color: var(--accent-2);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .note {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>摸鱼百科</h1>
+        <p class="subtitle">一些奇怪、轻量、适合点开看两分钟的网页。</p>
+      </div>
+      <div class="actions">
+        <button class="shuffle" type="button" id="shuffle">随机打开一个</button>
+        <a class="back" href="index.html">返回仪表盘</a>
+      </div>
+    </header>
+
+    <section class="grid" id="siteGrid"></section>
+    <p class="note">这些链接会在新标签页打开，内容来自外部网站；本页只做收藏入口，不会自动加载外部内容。</p>
+  </main>
+
+  <script>
+    const sites = [
+      {
+        title: "The Useless Web",
+        tag: "随机怪站",
+        url: "https://theuselessweb.com/",
+        desc: "按一下按钮，被送去一个莫名其妙的网站。适合不知道看什么的时候。"
+      },
+      {
+        title: "Pointer Pointer",
+        tag: "荒谬互动",
+        url: "https://pointerpointer.com/",
+        desc: "移动鼠标，它会找一张照片指向你的指针。很无聊，也很神奇。"
+      },
+      {
+        title: "Neal.fun",
+        tag: "互动小实验",
+        url: "https://neal.fun/",
+        desc: "很多好玩的互动页面，适合短暂逃离现实，又不会太费脑。"
+      },
+      {
+        title: "Radio Garden",
+        tag: "世界电台",
+        url: "https://radio.garden/",
+        desc: "在地球上转一转，听世界各地的实时电台。"
+      },
+      {
+        title: "WindowSwap",
+        tag: "云看窗外",
+        url: "https://www.window-swap.com/",
+        desc: "随机看看别人窗外的风景，适合假装自己已经下班远行。"
+      },
+      {
+        title: "Zoomquilt",
+        tag: "无限画卷",
+        url: "https://zoomquilt.org/",
+        desc: "一直往里缩放的无尽画面，看久了有一种奇妙的放空感。"
+      },
+      {
+        title: "Drive & Listen",
+        tag: "云兜风",
+        url: "https://driveandlisten.herokuapp.com/",
+        desc: "一边看城市街景一边听本地广播，适合精神下班。"
+      },
+      {
+        title: "Little Alchemy 2",
+        tag: "合成小游戏",
+        url: "https://littlealchemy2.com/",
+        desc: "把元素拖来拖去合成新东西，轻度上头，谨慎摸鱼。"
+      },
+      {
+        title: "A Soft Murmur",
+        tag: "环境音",
+        url: "https://asoftmurmur.com/",
+        desc: "雨声、风声、咖啡馆白噪音，用来给工作区加一点空气。"
+      }
+    ];
+
+    const grid = document.querySelector("#siteGrid");
+    const shuffle = document.querySelector("#shuffle");
+
+    function render() {
+      grid.innerHTML = sites.map((site) => `
+        <a class="site" href="${site.url}" target="_blank" rel="noopener noreferrer">
+          <div>
+            <div class="tag">${site.tag}</div>
+            <h2>${site.title}</h2>
+            <p class="desc">${site.desc}</p>
+          </div>
+          <div class="open">打开看看</div>
+        </a>
+      `).join("");
+    }
+
+    shuffle.addEventListener("click", () => {
+      const site = sites[Math.floor(Math.random() * sites.length)];
+      window.open(site.url, "_blank", "noopener,noreferrer");
+    });
+
+    render();
+  </script>
+</body>
+</html>

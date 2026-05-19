@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>工资日历</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f2;
+      --panel: #ffffff;
+      --text: #18201b;
+      --muted: #657068;
+      --line: #dce4dd;
+      --accent: #31765a;
+      --accent-2: #d77c3f;
+      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
+        var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
+        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
+        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
+        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
+        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
+        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.48;
+      background-image:
+        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
+        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
+      background-size: 260px 260px, 310px 310px;
+      background-position: right 76px top 68px, left 54px bottom 80px;
+      background-repeat: no-repeat;
+    }
+
+    .app {
+      position: relative;
+      z-index: 0;
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .back {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card,
+    .calendar {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      min-height: 112px;
+      padding: 16px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .value {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 780;
+      overflow-wrap: anywhere;
+    }
+
+    .calendar {
+      padding: 18px;
+    }
+
+    .weekdays,
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .weekdays {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      text-align: center;
+    }
+
+    .day {
+      min-height: 92px;
+      display: grid;
+      align-content: space-between;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #dce4dd;
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .day.blank {
+      visibility: hidden;
+    }
+
+    .day.weekend {
+      background: #f0f2ef;
+      color: var(--muted);
+    }
+
+    .day.done {
+      border-color: rgba(49, 118, 90, .35);
+      background: #eef7f0;
+    }
+
+    .day.today {
+      border-color: var(--accent-2);
+      box-shadow: inset 0 0 0 2px rgba(215,124,63,.16);
+    }
+
+    .day.holiday {
+      background: #fff7df;
+      border-color: rgba(215, 124, 63, .28);
+    }
+
+    .day.makeup {
+      background: #eef7f0;
+      border-color: rgba(49, 118, 90, .36);
+    }
+
+    .day-number {
+      font-weight: 800;
+    }
+
+    .day-pay {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .day-mood {
+      width: fit-content;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(255, 231, 157, .38);
+      color: #6d5a1f;
+      font-size: 15px;
+      font-weight: 760;
+      line-height: 1;
+    }
+
+    .mood-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .mood-chip {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #eef7f0;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .note {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .weekdays,
+      .grid {
+        gap: 5px;
+      }
+
+      .day {
+        min-height: 72px;
+        padding: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>工资日历</h1>
+        <p class="subtitle">把这个月拆成一格一格，看每个工作日被你拿下。</p>
+      </div>
+      <a class="back" href="index.html">返回仪表盘</a>
+    </header>
+
+    <section class="summary">
+      <article class="card">
+        <div class="label">本月工作日</div>
+        <div class="value" id="workdays">-- 天</div>
+      </article>
+      <article class="card">
+        <div class="label">每天到手</div>
+        <div class="value" id="dailyPay">--</div>
+      </article>
+      <article class="card">
+        <div class="label">已拿下</div>
+        <div class="value" id="earnedMonth">--</div>
+      </article>
+      <article class="card">
+        <div class="label">本月精神状态</div>
+        <div class="mood-strip" id="moodSummary">--</div>
+      </article>
+    </section>
+
+    <section class="calendar">
+      <div class="weekdays">
+        <div>周日</div>
+        <div>周一</div>
+        <div>周二</div>
+        <div>周三</div>
+        <div>周四</div>
+        <div>周五</div>
+        <div>周六</div>
+      </div>
+      <div class="grid" id="calendarGrid"></div>
+      <p class="note" id="note">数据读取中。</p>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "salaryDashboardSettings.v1";
+    const MOOD_STORAGE_KEY = "salaryDashboardMoodLog.v1";
+    const DEFAULTS = {
+      salary: "",
+      salaryType: "afterTax",
+      workMode: "double"
+    };
+
+    const HOLIDAY_CACHE_PREFIX = "salaryDashboardHolidayData.CN.";
+    const HOLIDAY_SOURCE_URLS = [
+      (year) => `https://unpkg.com/holiday-calendar/data/CN/${year}.json`,
+      (year) => `https://gcore.jsdelivr.net/gh/cg-zhou/holiday-calendar@main/data/CN/${year}.json`
+    ];
+
+    const MOODS = {
+      escape: { label: "想跑路", icon: "🏃" },
+      annoyed: { label: "烦", icon: "😵" },
+      calm: { label: "平静", icon: "😌" },
+      good: { label: "还不错", icon: "🌿" },
+      earned: { label: "赚到了", icon: "💰" }
+    };
+
+    const grid = document.querySelector("#calendarGrid");
+    const workdaysEl = document.querySelector("#workdays");
+    const dailyPayEl = document.querySelector("#dailyPay");
+    const earnedMonthEl = document.querySelector("#earnedMonth");
+    const moodSummaryEl = document.querySelector("#moodSummary");
+    const noteEl = document.querySelector("#note");
+    const holidayDataByYear = new Map();
+    let holidaySyncStatus = "正在同步节假日";
+
+    function loadSettings() {
+      try {
+        return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
+      } catch {
+        return { ...DEFAULTS };
+      }
+    }
+
+    function loadMoodLog() {
+      try {
+        return JSON.parse(localStorage.getItem(MOOD_STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function formatMoney(value) {
+      if (!Number.isFinite(value)) return "--";
+      return new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency: "CNY",
+        maximumFractionDigits: value >= 100 ? 0 : 2
+      }).format(value);
+    }
+
+    function formatDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function normalizeHolidayData(data) {
+      const days = Array.isArray(data?.dates) ? data.dates : [];
+      return {
+        holidays: new Set(days.filter((day) => day.type === "public_holiday").map((day) => day.date)),
+        workdays: new Set(days.filter((day) => day.type === "transfer_workday").map((day) => day.date))
+      };
+    }
+
+    function readCachedHolidayData(year) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(`${HOLIDAY_CACHE_PREFIX}${year}`) || "null");
+        if (!cached) return null;
+        return normalizeHolidayData(cached);
+      } catch {
+        return null;
+      }
+    }
+
+    async function syncHolidayData(year) {
+      if (holidayDataByYear.has(year)) return;
+
+      const cached = readCachedHolidayData(year);
+      if (cached) {
+        holidayDataByYear.set(year, cached);
+        holidaySyncStatus = "已同步节假日和调休";
+      }
+
+      for (const makeUrl of HOLIDAY_SOURCE_URLS) {
+        try {
+          const response = await fetch(makeUrl(year), { cache: "force-cache" });
+          if (!response.ok) continue;
+          const data = await response.json();
+          const normalized = normalizeHolidayData(data);
+          holidayDataByYear.set(year, normalized);
+          localStorage.setItem(`${HOLIDAY_CACHE_PREFIX}${year}`, JSON.stringify(data));
+          holidaySyncStatus = "已同步节假日和调休";
+          return;
+        } catch {
+          // Try the next mirror, then fall back to cached data or weekday rules.
+        }
+      }
+
+      if (!holidayDataByYear.has(year)) {
+        holidayDataByYear.set(year, { holidays: new Set(), workdays: new Set() });
+        holidaySyncStatus = "节假日同步失败，暂按周历计算";
+      }
+    }
+
+    function getDayKind(date, mode) {
+      const key = formatDateKey(date);
+      const holidayData = holidayDataByYear.get(date.getFullYear());
+      if (holidayData?.holidays.has(key)) return "holiday";
+      if (holidayData?.workdays.has(key)) return "makeup";
+      const day = date.getDay();
+      if (mode === "single") return day !== 0 ? "workday" : "weekend";
+      return day !== 0 && day !== 6 ? "workday" : "weekend";
+    }
+
+    function isWorkday(date, mode) {
+      return ["workday", "makeup"].includes(getDayKind(date, mode));
+    }
+
+    function render() {
+      const settings = loadSettings();
+      const moodLog = loadMoodLog();
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = new Date(year, month, 1).getDay();
+      const salary = Number(settings.salary) || 0;
+      const dates = Array.from({ length: daysInMonth }, (_, index) => new Date(year, month, index + 1));
+      const workdays = dates.filter((date) => isWorkday(date, settings.workMode));
+      const dailyPay = workdays.length > 0 ? salary / workdays.length : 0;
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const elapsedWorkdays = workdays.filter((date) => date <= todayStart).length;
+      const monthMoodCounts = dates.reduce((counts, date) => {
+        const mood = moodLog[formatDateKey(date)];
+        if (mood) counts[mood] = (counts[mood] || 0) + 1;
+        return counts;
+      }, {});
+
+      workdaysEl.textContent = `${workdays.length} 天`;
+      dailyPayEl.textContent = formatMoney(dailyPay);
+      earnedMonthEl.textContent = formatMoney(dailyPay * elapsedWorkdays);
+      moodSummaryEl.innerHTML = Object.keys(monthMoodCounts).length
+        ? Object.entries(MOODS).filter(([mood]) => monthMoodCounts[mood]).map(([mood, item]) => `<span class="mood-chip">${item.icon} ${monthMoodCounts[mood]}</span>`).join("")
+        : "<span class=\"mood-chip\">暂无记录</span>";
+      noteEl.textContent = settings.salary
+        ? `${year} 年 ${month + 1} 月，${settings.workMode === "single" ? "单休" : "双休"}口径；${holidaySyncStatus}。`
+        : "还没有填写工资。回到仪表盘点开配置后，这里会自动更新。";
+
+      grid.innerHTML = "";
+      for (let i = 0; i < firstDay; i += 1) {
+        const blank = document.createElement("div");
+        blank.className = "day blank";
+        grid.append(blank);
+      }
+
+      dates.forEach((date) => {
+        const day = document.createElement("div");
+        const dayKind = getDayKind(date, settings.workMode);
+        const workday = ["workday", "makeup"].includes(dayKind);
+        const isDone = workday && date <= todayStart;
+        const isToday = date.toDateString() === todayStart.toDateString();
+        day.className = [
+          "day",
+          workday ? "" : "weekend",
+          dayKind === "holiday" ? "holiday" : "",
+          dayKind === "makeup" ? "makeup" : "",
+          isDone ? "done" : "",
+          isToday ? "today" : ""
+        ].filter(Boolean).join(" ");
+
+        const label = dayKind === "holiday" ? "法定休" : dayKind === "makeup" ? `调休上班 · ${formatMoney(dailyPay)}` : workday ? formatMoney(dailyPay) : "休息日";
+        const mood = moodLog[formatDateKey(date)];
+        const moodItem = MOODS[mood];
+        day.innerHTML = `<div class="day-number">${date.getDate()}</div><div><div class="day-pay">${label}</div>${moodItem ? `<div class="day-mood" title="${moodItem.label}">${moodItem.icon}</div>` : ""}</div>`;
+        grid.append(day);
+      });
+    }
+
+    render();
+    syncHolidayData(new Date().getFullYear()).then(render);
+  </script>
+</body>
+</html>

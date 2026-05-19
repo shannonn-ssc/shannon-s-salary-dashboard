@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>今日打工小账本</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f2;
+      --panel: #ffffff;
+      --panel-soft: #eef5ef;
+      --text: #18201b;
+      --muted: #657068;
+      --line: #dce4dd;
+      --accent: #31765a;
+      --accent-2: #d77c3f;
+      --accent-3: #5166a5;
+      --danger: #b64a4a;
+      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
+        var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
+        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
+        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
+        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
+        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
+        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.48;
+      background-image:
+        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
+        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
+      background-size: 260px 260px, 310px 310px;
+      background-position: right 76px top 68px, left 54px bottom 80px;
+      background-repeat: no-repeat;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      position: relative;
+      z-index: 0;
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.06;
+      font-weight: 760;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .date-pill {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--muted);
+      white-space: nowrap;
+      line-height: 1.18;
+    }
+
+    .date-pill strong {
+      color: #48645a;
+      font-size: 15px;
+    }
+
+    .date-pill span {
+      font-size: 12px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .settings {
+      overflow: hidden;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .settings.is-open .panel-title {
+      padding: 18px 18px 0;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .save-state {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .settings-toggle {
+      width: 100%;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      font-weight: 760;
+    }
+
+    .settings-toggle > span:first-child {
+      min-width: 0;
+    }
+
+    .settings-toggle span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    #settingsSummary {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: bottom;
+    }
+
+    .settings-toggle strong {
+      color: var(--text);
+      font-size: 17px;
+    }
+
+    .settings-toggle-icon {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #c9d5cc;
+      border-radius: 7px;
+      color: var(--accent);
+      background: #fff;
+    }
+
+    .settings-body {
+      display: none;
+      padding: 0 18px 18px;
+    }
+
+    .settings.is-open .settings-body {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .settings.is-open .warning,
+    .settings.is-open .time-grid,
+    .settings.is-open .hint {
+      grid-column: 1 / -1;
+    }
+
+    .settings.is-open .settings-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .settings:not(.is-open) .settings-body {
+      display: none !important;
+    }
+
+    .settings.is-open .settings-body {
+      display: grid;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label,
+    .group-label {
+      color: #354039;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #cdd8cf;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(49, 118, 90, 0.14);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .segmented label {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cdd8cf;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented label:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--panel-soft);
+      color: var(--accent);
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .warning {
+      display: none;
+      padding: 10px 11px;
+      border: 1px solid #efcfb9;
+      border-radius: 7px;
+      background: #fff6ee;
+      color: #7f421d;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .warning.is-visible {
+      display: block;
+    }
+
+    .main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      min-height: 128px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 780;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .wide-panel {
+      padding: 18px;
+    }
+
+    .progress-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .progress-row {
+      display: grid;
+      gap: 9px;
+    }
+
+    .progress-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .progress-head strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .bar {
+      height: 16px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e4ebe5;
+      border: 1px solid #d6e1d8;
+    }
+
+    .bar span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #6fb78a);
+      transition: width 300ms ease;
+    }
+
+    .bar.today span {
+      background: linear-gradient(90deg, var(--accent-2), #e3ad63);
+    }
+
+    .day-segments {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .day-segment {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #dce4dd;
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .segment-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .segment-head strong {
+      color: var(--text);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .segment-head span {
+      min-width: 0;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .bar.mini {
+      height: 10px;
+    }
+
+    .bar.morning span {
+      background: linear-gradient(90deg, var(--accent-3), #8493c8);
+    }
+
+    .bar.afternoon span {
+      background: linear-gradient(90deg, var(--accent-2), #e3ad63);
+    }
+
+    .widgets {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .quote {
+      min-height: 152px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .quote-text {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.5;
+      font-weight: 720;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .quick-link {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 13px;
+      border: 1px solid #c9d5cc;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 760;
+    }
+
+    .bottom-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mood-picker {
+      position: relative;
+      width: fit-content;
+    }
+
+    .mood-picker::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      height: 14px;
+    }
+
+    .mood-trigger {
+      min-height: 38px;
+      padding: 0 13px;
+      border: 1px solid #c9d5cc;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 760;
+    }
+
+    .mood-options {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 10px);
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(5, 44px);
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 220ms ease 180ms, transform 220ms ease 180ms;
+    }
+
+    .mood-picker:hover .mood-options,
+    .mood-picker:focus-within .mood-options {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      transition-delay: 0ms;
+    }
+
+    .mood-btn {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #c9d5cc;
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .mood-btn.is-active {
+      border-color: var(--accent);
+      background: #eef7f0;
+    }
+
+    .mood-effect {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .mood-effect.is-active {
+      opacity: 1;
+    }
+
+    .effect-item {
+      position: absolute;
+      top: -48px;
+      left: var(--x);
+      color: var(--effect-color, rgba(49, 118, 90, 0.68));
+      font-size: var(--size, 20px);
+      font-weight: 800;
+      animation: moodFall var(--duration, 1800ms) linear forwards;
+      transform: translateY(-30px) rotate(var(--rotate, 0deg));
+      white-space: nowrap;
+    }
+
+    @keyframes moodFall {
+      to {
+        transform: translateY(calc(100vh + 90px)) rotate(var(--rotate-end, 0deg));
+        opacity: 0;
+      }
+    }
+
+    .btn {
+      min-height: 38px;
+      padding: 0 13px;
+      border: 1px solid #c9d5cc;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn:hover {
+      filter: brightness(0.98);
+    }
+
+    .timer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .timer-display {
+      font-size: clamp(34px, 5vw, 56px);
+      font-weight: 780;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .timer-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 0 2px;
+    }
+
+    @media (max-width: 920px) {
+      .layout,
+      .widgets {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .settings.is-open .settings-body {
+        grid-template-columns: 1fr;
+      }
+
+      .timer {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .metrics,
+      .day-segments,
+      .time-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .quick-links {
+        justify-content: stretch;
+      }
+
+      .quick-link,
+      .mood-picker,
+      .mood-trigger {
+        width: 100%;
+      }
+
+      .metric {
+        min-height: 112px;
+      }
+
+      .timer-controls {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>今日打工小账本</h1>
+        <p class="subtitle" id="dailyLine">今天也要把班上得有理有据。</p>
+      </div>
+      <div class="date-pill" id="currentDate">--</div>
+    </header>
+
+    <div class="layout" id="layout">
+      <section class="panel settings" id="settingsPanel" aria-label="配置">
+        <div class="panel-title">
+          <button class="settings-toggle" type="button" id="settingsToggle" aria-expanded="false" aria-controls="settingsForm">
+            <span>
+              <strong>配置</strong><br>
+              <span id="settingsSummary">点这里修改工资和作息</span>
+            </span>
+            <span class="settings-toggle-icon" aria-hidden="true">⌄</span>
+          </button>
+        </div>
+
+        <form class="form-grid settings-body" id="settingsForm">
+          <span class="save-state" id="saveState">已保存</span>
+          <div class="field">
+            <label for="salary">月工资金额</label>
+            <input id="salary" name="salary" type="number" min="0" step="100" inputmode="decimal" placeholder="例如 12000">
+          </div>
+
+          <div class="field">
+            <span class="group-label">工资口径</span>
+            <div class="segmented">
+              <label><input type="radio" name="salaryType" value="afterTax" checked>税后到手</label>
+              <label><input type="radio" name="salaryType" value="beforeTax">税前参考</label>
+            </div>
+          </div>
+
+          <p class="warning" id="taxWarning">当前选择的是税前参考。本页不会自动扣除个税、五险一金和专项扣除；想看准确到手日薪，建议输入税后工资。</p>
+
+          <div class="field">
+            <span class="group-label">工作方式</span>
+            <div class="segmented">
+              <label><input type="radio" name="workMode" value="double" checked>双休</label>
+              <label><input type="radio" name="workMode" value="single">单休</label>
+            </div>
+          </div>
+
+          <div class="time-grid">
+            <div class="field">
+              <label for="startTime">上班时间</label>
+              <input id="startTime" name="startTime" type="time" value="09:00">
+            </div>
+            <div class="field">
+              <label for="endTime">下班时间</label>
+              <input id="endTime" name="endTime" type="time" value="18:00">
+            </div>
+            <div class="field">
+              <label for="lunchStart">午休开始</label>
+              <input id="lunchStart" name="lunchStart" type="time" value="12:00">
+            </div>
+            <div class="field">
+              <label for="lunchEnd">午休结束</label>
+              <input id="lunchEnd" name="lunchEnd" type="time" value="13:00">
+            </div>
+          </div>
+
+          <p class="hint">配置会自动保存在当前浏览器。清理浏览器数据、换浏览器或换设备后，需要重新填写。</p>
+        </form>
+      </section>
+
+      <section class="main" aria-label="仪表盘">
+        <section class="panel wide-panel">
+          <div class="progress-stack">
+            <div class="progress-row">
+              <div class="progress-head">
+                <strong>本月打工进度</strong>
+                <span id="monthProgressText">--</span>
+              </div>
+              <div class="bar"><span id="monthProgressBar"></span></div>
+            </div>
+
+            <div class="progress-row">
+              <div class="progress-head">
+                <strong>今日下班进度</strong>
+                <span id="todayProgressText">--</span>
+              </div>
+              <div class="day-segments">
+                <div class="day-segment">
+                  <div class="segment-head">
+                    <strong>上午</strong>
+                    <span id="morningProgressText">--</span>
+                  </div>
+                  <div class="bar mini morning"><span id="morningProgressBar"></span></div>
+                </div>
+
+                <div class="day-segment">
+                  <div class="segment-head">
+                    <strong>下午</strong>
+                    <span id="afternoonProgressText">--</span>
+                  </div>
+                  <div class="bar mini afternoon"><span id="afternoonProgressBar"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="metrics">
+          <article class="metric">
+            <div class="metric-label">本月实际上班</div>
+            <div class="metric-value" id="workdays">-- 天</div>
+            <div class="metric-note" id="monthDays">按当前月份计算</div>
+          </article>
+
+          <article class="metric">
+            <div class="metric-label">到手日薪</div>
+            <div class="metric-value" id="dailyPay">--</div>
+            <div class="metric-note">按实际上班天数摊分</div>
+          </article>
+
+          <article class="metric">
+            <div class="metric-label">到手时薪</div>
+            <div class="metric-value" id="hourlyPay">--</div>
+            <div class="metric-note" id="hoursNote">每日有效工时 -- 小时</div>
+          </article>
+
+          <article class="metric">
+            <div class="metric-label">今天已赚</div>
+            <div class="metric-value" id="earnedToday">--</div>
+            <div class="metric-note" id="todayStatus">读取时间中</div>
+          </article>
+        </div>
+
+        <section class="panel wide-panel timer">
+          <div>
+            <h2>轻量番茄钟</h2>
+            <p class="hint">本地计时，不会发通知。适合“我就认真 40 分钟”。</p>
+          </div>
+          <div class="timer-display" id="timerDisplay">40:00</div>
+          <div class="timer-controls">
+            <button class="btn primary" type="button" id="timerStart">开始</button>
+            <button class="btn" type="button" id="timerPause">暂停</button>
+            <button class="btn" type="button" id="timerReset">重置</button>
+          </div>
+        </section>
+
+        <div class="widgets">
+          <section class="panel wide-panel quote">
+            <div>
+              <h2>摸鱼小卡片</h2>
+              <p class="quote-text" id="quoteText">正在生成今日精神燃料。</p>
+            </div>
+            <div class="button-row">
+              <button class="btn primary" type="button" id="newQuote">换一句</button>
+              <button class="btn" type="button" id="miniBreak">3 分钟休息</button>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="bottom-actions">
+          <div class="mood-picker">
+            <button class="mood-trigger" type="button" id="moodState" aria-haspopup="true">今日总结</button>
+            <div class="mood-options" id="moodOptions" aria-label="选择今天的精神状态">
+              <button class="mood-btn" type="button" data-mood="escape" title="想跑路">🏃</button>
+              <button class="mood-btn" type="button" data-mood="annoyed" title="烦">😵</button>
+              <button class="mood-btn" type="button" data-mood="calm" title="平静">😌</button>
+              <button class="mood-btn" type="button" data-mood="good" title="还不错">🌿</button>
+              <button class="mood-btn" type="button" data-mood="earned" title="赚到了">💰</button>
+            </div>
+          </div>
+
+          <nav class="quick-links" aria-label="辅助页面">
+            <a class="quick-link" href="calendar.html">工资日历</a>
+            <a class="quick-link" href="moyu.html">摸鱼百科</a>
+          </nav>
+        </div>
+
+        <p class="footer-note">本页面是纯本地单文件，不登录、不联网、不上传数据。税前口径只做参考，不替代个税和社保公积金计算。</p>
+      </section>
+    </div>
+  </main>
+
+  <div class="mood-effect" id="moodEffect" aria-hidden="true"></div>
+
+  <script>
+    const STORAGE_KEY = "salaryDashboardSettings.v1";
+    const MOOD_STORAGE_KEY = "salaryDashboardMoodLog.v1";
+    const DEFAULTS = {
+      salary: "",
+      salaryType: "afterTax",
+      workMode: "double",
+      startTime: "09:00",
+      endTime: "18:00",
+      lunchStart: "12:00",
+      lunchEnd: "13:00"
+    };
+
+    const HOLIDAY_CACHE_PREFIX = "salaryDashboardHolidayData.CN.";
+    const HOLIDAY_SOURCE_URLS = [
+      (year) => `https://unpkg.com/holiday-calendar/data/CN/${year}.json`,
+      (year) => `https://gcore.jsdelivr.net/gh/cg-zhou/holiday-calendar@main/data/CN/${year}.json`
+    ];
+
+    const MOODS = {
+      escape: { label: "想跑路", icon: "🏃" },
+      annoyed: { label: "烦", icon: "😵" },
+      calm: { label: "平静", icon: "😌" },
+      good: { label: "还不错", icon: "🌿" },
+      earned: { label: "赚到了", icon: "💰" }
+    };
+
+    const quotes = [
+      "今天每坐稳一分钟，都是账户余额在慢慢长大。",
+      "先把这段时间卖个好价钱，下班后的自己会感谢你。",
+      "不是在发呆，是在给下一轮高效工作预热。",
+      "打工可以朴素，到账必须清楚。",
+      "你的时薪正在发光，虽然屏幕亮度可能更明显。",
+      "把今天过完，钱包会比早上更有底气。",
+      "认真一点点，摸鱼也更理直气壮一点点。"
+    ];
+
+    const dailyLines = [
+      "今天也要把班上得有理有据。",
+      "工资会到账，疲惫会过去。",
+      "先稳住这一小时，再拿下这一整天。",
+      "打开页面不是为了焦虑，是为了看见进度。",
+      "每一个工作日都在悄悄变成余额。",
+      "允许自己慢一点，但不要忘记已经走了多远。",
+      "今天的目标：少内耗，多到账。",
+      "工位只是临时地点，下班才是精神归宿。",
+      "把时间卖清楚，把生活留给自己。"
+    ];
+
+    const dailyLine = document.querySelector("#dailyLine");
+    const form = document.querySelector("#settingsForm");
+    const settingsPanel = document.querySelector("#settingsPanel");
+    const settingsToggle = document.querySelector("#settingsToggle");
+    const settingsSummary = document.querySelector("#settingsSummary");
+    const saveState = document.querySelector("#saveState");
+    const taxWarning = document.querySelector("#taxWarning");
+    const currentDate = document.querySelector("#currentDate");
+    const workdaysEl = document.querySelector("#workdays");
+    const monthDaysEl = document.querySelector("#monthDays");
+    const dailyPayEl = document.querySelector("#dailyPay");
+    const hourlyPayEl = document.querySelector("#hourlyPay");
+    const hoursNoteEl = document.querySelector("#hoursNote");
+    const earnedTodayEl = document.querySelector("#earnedToday");
+    const todayStatusEl = document.querySelector("#todayStatus");
+    const monthProgressText = document.querySelector("#monthProgressText");
+    const monthProgressBar = document.querySelector("#monthProgressBar");
+    const todayProgressText = document.querySelector("#todayProgressText");
+    const morningProgressText = document.querySelector("#morningProgressText");
+    const morningProgressBar = document.querySelector("#morningProgressBar");
+    const afternoonProgressText = document.querySelector("#afternoonProgressText");
+    const afternoonProgressBar = document.querySelector("#afternoonProgressBar");
+    const quoteText = document.querySelector("#quoteText");
+    const newQuote = document.querySelector("#newQuote");
+    const miniBreak = document.querySelector("#miniBreak");
+    const timerDisplay = document.querySelector("#timerDisplay");
+    const timerStart = document.querySelector("#timerStart");
+    const timerPause = document.querySelector("#timerPause");
+    const timerReset = document.querySelector("#timerReset");
+    const moodState = document.querySelector("#moodState");
+    const moodOptions = document.querySelector("#moodOptions");
+    const moodEffect = document.querySelector("#moodEffect");
+
+    let timerSeconds = 40 * 60;
+    let timerHandle = null;
+    let saveHandle = null;
+    let autoCollapseHandle = null;
+    let holidaySyncStatus = "正在同步节假日";
+    const holidayDataByYear = new Map();
+
+    function loadSettings() {
+      try {
+        return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
+      } catch {
+        return { ...DEFAULTS };
+      }
+    }
+
+    function loadMoodLog() {
+      try {
+        return JSON.parse(localStorage.getItem(MOOD_STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveMoodLog(log) {
+      localStorage.setItem(MOOD_STORAGE_KEY, JSON.stringify(log));
+    }
+
+    function renderMoodState() {
+      const todayKey = formatDateKey(new Date());
+      const mood = loadMoodLog()[todayKey];
+      moodState.textContent = mood ? `今日总结 ${MOODS[mood].icon}` : "今日总结";
+      moodState.title = mood ? `今天：${MOODS[mood].label}` : "今天还没有记录";
+      moodOptions.querySelectorAll(".mood-btn").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.mood === mood);
+      });
+    }
+
+    function showMoodEffect(mood) {
+      const itemSets = {
+        escape: { items: ["☔", "🌧️", "💧", "先撤", "🏃"], color: "rgba(81, 102, 165, 0.62)", count: 42 },
+        annoyed: { items: ["☔", "🌧️", "💧", "烦", "😵"], color: "rgba(81, 102, 165, 0.58)", count: 40 },
+        calm: { items: ["🌿", "🍃", "☁️", "呼", "😌"], color: "rgba(49, 118, 90, 0.56)", count: 34 },
+        good: { items: ["🌿", "🍃", "✨", "不错", "好耶"], color: "rgba(49, 118, 90, 0.66)", count: 38 },
+        earned: { items: ["💰", "👏", "✨", "到账", "好耶"], color: "rgba(215, 124, 63, 0.72)", count: 42 }
+      };
+      const config = itemSets[mood] || itemSets.calm;
+      moodEffect.className = "mood-effect";
+      moodEffect.innerHTML = "";
+
+      Array.from({ length: config.count }).forEach(() => {
+        const item = document.createElement("span");
+        item.className = "effect-item";
+        item.textContent = config.items[Math.floor(Math.random() * config.items.length)];
+        item.style.setProperty("--x", `${Math.random() * 100}%`);
+        item.style.setProperty("--size", `${Math.round(15 + Math.random() * 17)}px`);
+        item.style.setProperty("--duration", `${Math.round(1900 + Math.random() * 1300)}ms`);
+        item.style.setProperty("--rotate", `${Math.round(-18 + Math.random() * 36)}deg`);
+        item.style.setProperty("--rotate-end", `${Math.round(-90 + Math.random() * 180)}deg`);
+        item.style.setProperty("--effect-color", config.color);
+        item.style.animationDelay = `${Math.round(Math.random() * 650)}ms`;
+        moodEffect.append(item);
+      });
+
+      moodEffect.classList.add("is-active");
+      window.setTimeout(() => {
+        moodEffect.classList.remove("is-active");
+        moodEffect.innerHTML = "";
+      }, 3900);
+    }
+
+    function setSettingsOpen(isOpen) {
+      settingsPanel.classList.toggle("is-open", isOpen);
+      settingsToggle.setAttribute("aria-expanded", String(isOpen));
+    }
+
+    function getSettings() {
+      const data = new FormData(form);
+      return {
+        salary: document.querySelector("#salary").value,
+        salaryType: data.get("salaryType") || DEFAULTS.salaryType,
+        workMode: data.get("workMode") || DEFAULTS.workMode,
+        startTime: document.querySelector("#startTime").value || DEFAULTS.startTime,
+        endTime: document.querySelector("#endTime").value || DEFAULTS.endTime,
+        lunchStart: document.querySelector("#lunchStart").value || DEFAULTS.lunchStart,
+        lunchEnd: document.querySelector("#lunchEnd").value || DEFAULTS.lunchEnd
+      };
+    }
+
+    function applySettings(settings) {
+      document.querySelector("#salary").value = settings.salary;
+      document.querySelector(`input[name="salaryType"][value="${settings.salaryType}"]`).checked = true;
+      document.querySelector(`input[name="workMode"][value="${settings.workMode}"]`).checked = true;
+      document.querySelector("#startTime").value = settings.startTime;
+      document.querySelector("#endTime").value = settings.endTime;
+      document.querySelector("#lunchStart").value = settings.lunchStart;
+      document.querySelector("#lunchEnd").value = settings.lunchEnd;
+    }
+
+    function saveSettings() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getSettings()));
+      saveState.textContent = "已保存";
+      clearTimeout(saveHandle);
+      saveHandle = setTimeout(() => {
+        saveState.textContent = "自动保存";
+      }, 1200);
+    }
+
+    function updateSettingsSummary() {
+      const settings = getSettings();
+      const salary = Number(settings.salary) || 0;
+      const salaryText = salary > 0 ? formatMoney(salary) : "未填写工资";
+      const typeText = settings.salaryType === "beforeTax" ? "税前" : "税后";
+      const modeText = settings.workMode === "single" ? "单休" : "双休";
+      settingsSummary.textContent = `${salaryText} · ${typeText} · ${modeText}`;
+    }
+
+    function scheduleSettingsCollapse(delay = 1200) {
+      clearTimeout(autoCollapseHandle);
+      autoCollapseHandle = setTimeout(() => {
+        if (form.contains(document.activeElement)) return;
+        setSettingsOpen(false);
+      }, delay);
+    }
+
+    function parseTime(value) {
+      const [hours, minutes] = value.split(":").map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function minutesToDate(now, minutes) {
+      const date = new Date(now);
+      date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+      return date;
+    }
+
+    function formatMoney(value) {
+      if (!Number.isFinite(value)) return "--";
+      return new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency: "CNY",
+        maximumFractionDigits: value >= 100 ? 0 : 2
+      }).format(value);
+    }
+
+    function formatDuration(minutes) {
+      const safeMinutes = Math.max(0, Math.ceil(minutes));
+      const hours = Math.floor(safeMinutes / 60);
+      const mins = safeMinutes % 60;
+      if (hours <= 0) return `${mins} 分钟`;
+      if (mins <= 0) return `${hours} 小时`;
+      return `${hours} 小时 ${mins} 分钟`;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function formatDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function normalizeHolidayData(data) {
+      const days = Array.isArray(data?.dates) ? data.dates : [];
+      return {
+        holidays: new Set(days.filter((day) => day.type === "public_holiday").map((day) => day.date)),
+        workdays: new Set(days.filter((day) => day.type === "transfer_workday").map((day) => day.date))
+      };
+    }
+
+    function readCachedHolidayData(year) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(`${HOLIDAY_CACHE_PREFIX}${year}`) || "null");
+        if (!cached) return null;
+        return normalizeHolidayData(cached);
+      } catch {
+        return null;
+      }
+    }
+
+    async function syncHolidayData(year) {
+      if (holidayDataByYear.has(year)) return;
+
+      const cached = readCachedHolidayData(year);
+      if (cached) {
+        holidayDataByYear.set(year, cached);
+        holidaySyncStatus = "已同步节假日和调休";
+      }
+
+      for (const makeUrl of HOLIDAY_SOURCE_URLS) {
+        try {
+          const response = await fetch(makeUrl(year), { cache: "force-cache" });
+          if (!response.ok) continue;
+          const data = await response.json();
+          const normalized = normalizeHolidayData(data);
+          holidayDataByYear.set(year, normalized);
+          localStorage.setItem(`${HOLIDAY_CACHE_PREFIX}${year}`, JSON.stringify(data));
+          holidaySyncStatus = "已同步节假日和调休";
+          return;
+        } catch {
+          // Try the next mirror, then fall back to cached data or weekday rules.
+        }
+      }
+
+      if (!holidayDataByYear.has(year)) {
+        holidayDataByYear.set(year, { holidays: new Set(), workdays: new Set() });
+        holidaySyncStatus = "节假日同步失败，暂按周历计算";
+      }
+    }
+
+    function isWorkday(date, workMode) {
+      const key = formatDateKey(date);
+      const holidayData = holidayDataByYear.get(date.getFullYear());
+      if (holidayData?.holidays.has(key)) return false;
+      if (holidayData?.workdays.has(key)) return true;
+      const day = date.getDay();
+      if (workMode === "single") return day !== 0;
+      return day !== 0 && day !== 6;
+    }
+
+    function countWorkdays(year, monthIndex, workMode) {
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+      let total = 0;
+      let elapsed = 0;
+      const today = new Date();
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, monthIndex, day);
+        if (!isWorkday(date, workMode)) continue;
+        total += 1;
+        if (date < new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)) {
+          elapsed += 1;
+        }
+      }
+
+      return { total, elapsed, daysInMonth };
+    }
+
+    function getWorkMinutes(settings) {
+      const start = parseTime(settings.startTime);
+      const end = parseTime(settings.endTime);
+      const lunchStart = parseTime(settings.lunchStart);
+      const lunchEnd = parseTime(settings.lunchEnd);
+      const workSpan = Math.max(0, end - start);
+      const lunchSpan = Math.max(0, Math.min(lunchEnd, end) - Math.max(lunchStart, start));
+      return Math.max(0, workSpan - lunchSpan);
+    }
+
+    function getWorkedMinutesToday(now, settings) {
+      const startMinutes = parseTime(settings.startTime);
+      const endMinutes = parseTime(settings.endTime);
+      const lunchStartMinutes = parseTime(settings.lunchStart);
+      const lunchEndMinutes = parseTime(settings.lunchEnd);
+      const start = minutesToDate(now, startMinutes);
+      const end = minutesToDate(now, endMinutes);
+      const lunchStart = minutesToDate(now, lunchStartMinutes);
+      const lunchEnd = minutesToDate(now, lunchEndMinutes);
+
+      if (now <= start) return 0;
+      if (now >= end) return getWorkMinutes(settings);
+
+      const beforeLunch = clamp((Math.min(now, lunchStart) - start) / 60000, 0, lunchStartMinutes - startMinutes);
+      const afterLunch = clamp((now - lunchEnd) / 60000, 0, endMinutes - lunchEndMinutes);
+      return Math.max(0, beforeLunch + afterLunch);
+    }
+
+    function getTodayStatus(now, settings, workMinutes, todayProgress) {
+      if (!isWorkday(now, settings.workMode)) return "今天不是默认工作日";
+
+      const start = minutesToDate(now, parseTime(settings.startTime));
+      const end = minutesToDate(now, parseTime(settings.endTime));
+      const lunchStart = minutesToDate(now, parseTime(settings.lunchStart));
+      const lunchEnd = minutesToDate(now, parseTime(settings.lunchEnd));
+
+      if (now < start) return `还有 ${formatDuration((start - now) / 60000)} 开始上班`;
+      if (now >= lunchStart && now < lunchEnd) return `午休中，还有 ${formatDuration((lunchEnd - now) / 60000)} 回来`;
+      if (now < end) return `还有 ${formatDuration((end - now) / 60000)} 下班`;
+      if (workMinutes <= 0) return "请检查作息时间";
+      return todayProgress >= 1 ? "今天的工作时间已结束" : "读取时间中";
+    }
+
+    function getSegmentProgress(now, start, end, notStartedText, activeTargetText, doneText) {
+      const total = Math.max(0, (end - start) / 60000);
+      if (total <= 0) {
+        return { progress: 0, text: "时间段无效" };
+      }
+      if (now < start) {
+        return { progress: 0, text: notStartedText };
+      }
+      if (now >= end) {
+        return { progress: 1, text: doneText };
+      }
+      const progress = clamp((now - start) / (end - start), 0, 1);
+      return {
+        progress,
+        text: `${Math.round(progress * 100)}% · 还有 ${formatDuration((end - now) / 60000)}${activeTargetText}`
+      };
+    }
+
+    function getDaySegmentStatus(now, settings) {
+      if (!isWorkday(now, settings.workMode)) {
+        return {
+          morning: { progress: 0, text: "今天不是工作日" },
+          afternoon: { progress: 0, text: "今天不是工作日" }
+        };
+      }
+
+      const start = minutesToDate(now, parseTime(settings.startTime));
+      const end = minutesToDate(now, parseTime(settings.endTime));
+      const lunchStart = minutesToDate(now, parseTime(settings.lunchStart));
+      const lunchEnd = minutesToDate(now, parseTime(settings.lunchEnd));
+      const hasLunch = lunchEnd > lunchStart && lunchStart > start && lunchEnd < end;
+
+      if (!hasLunch) {
+        const fullDay = getSegmentProgress(now, start, end, "未开始", "下班", "已下班");
+        return {
+          morning: fullDay,
+          afternoon: { progress: fullDay.progress, text: "未设置有效午休，按整天计算" }
+        };
+      }
+
+      let afternoonStartText = "未开始";
+      if (now >= lunchStart && now < lunchEnd) {
+        afternoonStartText = `午休中，还有 ${formatDuration((lunchEnd - now) / 60000)}开始下午`;
+      } else if (now < lunchStart) {
+        afternoonStartText = `未开始，距离下午还有 ${formatDuration((lunchEnd - now) / 60000)}`;
+      }
+
+      return {
+        morning: getSegmentProgress(now, start, lunchStart, "未开始", "到午休", "上午已完成"),
+        afternoon: getSegmentProgress(now, lunchEnd, end, afternoonStartText, "下班", "已下班")
+      };
+    }
+
+    function updateDashboard() {
+      const settings = getSettings();
+      const now = new Date();
+      const salary = Number(settings.salary) || 0;
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const monthData = countWorkdays(year, month, settings.workMode);
+      const workMinutes = getWorkMinutes(settings);
+      const workHours = workMinutes / 60;
+      const dailyPay = monthData.total > 0 ? salary / monthData.total : 0;
+      const hourlyPay = workHours > 0 ? dailyPay / workHours : 0;
+      const workedMinutesToday = isWorkday(now, settings.workMode) ? getWorkedMinutesToday(now, settings) : 0;
+      const todayProgress = workMinutes > 0 ? clamp(workedMinutesToday / workMinutes, 0, 1) : 0;
+      const earnedToday = dailyPay * todayProgress;
+      const monthProgress = monthData.total > 0 ? clamp(monthData.elapsed / monthData.total, 0, 1) : 0;
+      const salaryLabel = settings.salaryType === "beforeTax" ? "税前参考" : "税后到手";
+      const daySegments = getDaySegmentStatus(now, settings);
+
+      const dateText = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
+      const weekdayText = new Intl.DateTimeFormat("zh-CN", { weekday: "long" }).format(now);
+      currentDate.innerHTML = `<strong>${dateText}</strong><span>${weekdayText}</span>`;
+
+      taxWarning.classList.toggle("is-visible", settings.salaryType === "beforeTax");
+      workdaysEl.textContent = `${monthData.total} 天`;
+      monthDaysEl.textContent = `${year} 年 ${month + 1} 月 · ${holidaySyncStatus}`;
+      dailyPayEl.textContent = formatMoney(dailyPay);
+      hourlyPayEl.textContent = formatMoney(hourlyPay);
+      hoursNoteEl.textContent = `每日有效工时 ${workHours.toFixed(1)} 小时`;
+      earnedTodayEl.textContent = formatMoney(earnedToday);
+      todayStatusEl.textContent = `${salaryLabel} · ${getTodayStatus(now, settings, workMinutes, todayProgress)}`;
+
+      monthProgressText.textContent = `${monthData.elapsed}/${monthData.total} 个工作日 · ${Math.round(monthProgress * 100)}%`;
+      monthProgressBar.style.width = `${monthProgress * 100}%`;
+      todayProgressText.textContent = `${Math.round(todayProgress * 100)}% · ${getTodayStatus(now, settings, workMinutes, todayProgress)}`;
+      morningProgressText.textContent = daySegments.morning.text;
+      morningProgressBar.style.width = `${daySegments.morning.progress * 100}%`;
+      afternoonProgressText.textContent = daySegments.afternoon.text;
+      afternoonProgressBar.style.width = `${daySegments.afternoon.progress * 100}%`;
+      updateSettingsSummary();
+    }
+
+    function randomQuote() {
+      const index = Math.floor(Math.random() * quotes.length);
+      quoteText.textContent = quotes[index];
+    }
+
+    function randomDailyLine() {
+      const index = Math.floor(Math.random() * dailyLines.length);
+      dailyLine.textContent = dailyLines[index];
+    }
+
+    function renderTimer() {
+      const minutes = Math.floor(timerSeconds / 60).toString().padStart(2, "0");
+      const seconds = (timerSeconds % 60).toString().padStart(2, "0");
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (timerHandle) return;
+      timerHandle = setInterval(() => {
+        timerSeconds = Math.max(0, timerSeconds - 1);
+        renderTimer();
+        if (timerSeconds === 0) {
+          pauseTimer();
+          quoteText.textContent = "计时结束。可以伸个懒腰，也可以骄傲地摸一小会儿。";
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerHandle);
+      timerHandle = null;
+    }
+
+    function resetTimer(seconds = 40 * 60) {
+      pauseTimer();
+      timerSeconds = seconds;
+      renderTimer();
+    }
+
+    form.addEventListener("input", () => {
+      saveState.textContent = "保存中";
+      saveSettings();
+      updateDashboard();
+    });
+
+    form.addEventListener("change", () => {
+      saveSettings();
+      updateDashboard();
+      scheduleSettingsCollapse();
+    });
+
+    form.addEventListener("focusin", () => {
+      clearTimeout(autoCollapseHandle);
+    });
+
+    form.addEventListener("focusout", () => {
+      scheduleSettingsCollapse(700);
+    });
+
+    document.addEventListener("pointerdown", (event) => {
+      if (!settingsPanel.contains(event.target)) {
+        setSettingsOpen(false);
+      }
+    });
+
+    settingsToggle.addEventListener("click", () => {
+      clearTimeout(autoCollapseHandle);
+      setSettingsOpen(!settingsPanel.classList.contains("is-open"));
+    });
+
+    newQuote.addEventListener("click", randomQuote);
+    miniBreak.addEventListener("click", () => {
+      resetTimer(3 * 60);
+      startTimer();
+      quoteText.textContent = "3 分钟小休息启动，回来之后继续把钱赚得明明白白。";
+    });
+    timerStart.addEventListener("click", startTimer);
+    timerPause.addEventListener("click", pauseTimer);
+    timerReset.addEventListener("click", () => resetTimer());
+    moodOptions.addEventListener("click", (event) => {
+      const button = event.target.closest(".mood-btn");
+      if (!button) return;
+      const todayKey = formatDateKey(new Date());
+      const log = loadMoodLog();
+      log[todayKey] = button.dataset.mood;
+      saveMoodLog(log);
+      renderMoodState();
+      showMoodEffect(button.dataset.mood);
+    });
+
+    const initialSettings = loadSettings();
+    applySettings(initialSettings);
+    setSettingsOpen(false);
+    randomDailyLine();
+    randomQuote();
+    renderMoodState();
+    renderTimer();
+    updateDashboard();
+    syncHolidayData(new Date().getFullYear()).then(updateDashboard);
+    setInterval(updateDashboard, 1000);
+  </script>
+</body>
+</html>
