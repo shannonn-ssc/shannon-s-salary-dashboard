@@ -166,6 +166,14 @@
       white-space: nowrap;
     }
 
+    .settings-state {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
     .settings-toggle {
       width: 100%;
       min-height: 54px;
@@ -218,6 +226,14 @@
       background: #fff;
     }
 
+    .settings-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
     .settings-body {
       display: none;
       padding: 0 18px 18px;
@@ -229,6 +245,7 @@
       align-items: start;
     }
 
+    .settings.is-open .save-state,
     .settings.is-open .warning,
     .settings.is-open .time-grid,
     .settings.is-open .hint {
@@ -484,22 +501,23 @@
 
     .widgets {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
     }
 
     .quote {
       min-height: 152px;
       display: grid;
-      align-content: space-between;
+      grid-template-rows: auto 1fr auto;
       gap: 14px;
     }
 
     .quote-text {
       margin: 0;
-      font-size: 20px;
-      line-height: 1.5;
-      font-weight: 720;
+      align-self: end;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.22;
+      font-weight: 780;
     }
 
     .button-row {
@@ -508,37 +526,95 @@
       gap: 10px;
     }
 
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
     .quick-links {
+      display: contents;
+    }
+
+    .quick-link,
+    .mood-trigger {
+      min-height: 66px;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .quick-link {
-      min-height: 38px;
-      display: inline-flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       justify-content: center;
-      padding: 0 13px;
+      gap: 4px;
+      width: 100%;
+      padding: 10px 12px;
       border: 1px solid #c9d5cc;
-      border-radius: 7px;
-      background: #fff;
+      border-radius: 8px;
       color: var(--text);
+      text-align: left;
       text-decoration: none;
-      font-weight: 760;
+      cursor: pointer;
+      font-weight: 820;
     }
 
-    .bottom-actions {
+    .action-desc {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .action-mood {
+      background: rgba(255, 241, 181, 0.58);
+      border-color: rgba(215, 124, 63, 0.28);
+    }
+
+    .action-calendar {
+      background: rgba(238, 245, 239, 0.9);
+      border-color: rgba(49, 118, 90, 0.24);
+    }
+
+    .action-moyu {
+      background: rgba(241, 244, 255, 0.84);
+      border-color: rgba(81, 102, 165, 0.22);
+    }
+
+    .action-income {
+      background: rgba(255, 245, 235, 0.86);
+      border-color: rgba(215, 124, 63, 0.22);
+    }
+
+    .backup-panel {
+      margin-top: 18px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .backup-panel summary {
+      min-height: 58px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding: 0 18px;
+      list-style: none;
+      cursor: pointer;
+      font-weight: 820;
+    }
+
+    .backup-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .backup-content {
+      padding: 0 18px 18px;
+    }
+
+    .hidden-file {
+      display: none;
     }
 
     .mood-picker {
       position: relative;
-      width: fit-content;
+      width: 100%;
     }
 
     .mood-picker::before {
@@ -548,17 +624,6 @@
       right: 0;
       bottom: 100%;
       height: 14px;
-    }
-
-    .mood-trigger {
-      min-height: 38px;
-      padding: 0 13px;
-      border: 1px solid #c9d5cc;
-      border-radius: 7px;
-      background: #fff;
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 760;
     }
 
     .mood-options {
@@ -660,13 +725,13 @@
 
     .timer {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto;
-      align-items: center;
-      gap: 14px;
+      align-content: space-between;
+      gap: 16px;
+      min-height: 200px;
     }
 
     .timer-display {
-      font-size: clamp(34px, 5vw, 56px);
+      font-size: clamp(30px, 4vw, 38px);
       font-weight: 780;
       line-height: 1;
       font-variant-numeric: tabular-nums;
@@ -722,19 +787,8 @@
         grid-template-columns: 1fr;
       }
 
-      .bottom-actions {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .quick-links {
-        justify-content: stretch;
-      }
-
-      .quick-link,
-      .mood-picker,
-      .mood-trigger {
-        width: 100%;
+      .action-grid {
+        grid-template-columns: 1fr;
       }
 
       .metric {
@@ -743,6 +797,10 @@
 
       .timer-controls {
         grid-template-columns: 1fr;
+      }
+
+      .settings-state {
+        display: none;
       }
     }
   </style>
@@ -765,12 +823,14 @@
               <strong>配置</strong><br>
               <span id="settingsSummary">点这里修改工资和作息</span>
             </span>
-            <span class="settings-toggle-icon" aria-hidden="true">⌄</span>
+            <span class="settings-actions">
+              <span class="settings-state" id="saveState">已保存</span>
+              <span class="settings-toggle-icon" aria-hidden="true">⌄</span>
+            </span>
           </button>
         </div>
 
         <form class="form-grid settings-body" id="settingsForm">
-          <span class="save-state" id="saveState">已保存</span>
           <div class="field">
             <label for="salary">月工资金额</label>
             <input id="salary" name="salary" type="number" min="0" step="100" inputmode="decimal" placeholder="例如 12000">
@@ -880,25 +940,26 @@
           </article>
         </div>
 
-        <section class="panel wide-panel timer">
-          <div>
-            <h2>轻量番茄钟</h2>
-            <p class="hint">本地计时，不会发通知。适合“我就认真 40 分钟”。</p>
-          </div>
-          <div class="timer-display" id="timerDisplay">40:00</div>
-          <div class="timer-controls">
-            <button class="btn primary" type="button" id="timerStart">开始</button>
-            <button class="btn" type="button" id="timerPause">暂停</button>
-            <button class="btn" type="button" id="timerReset">重置</button>
-          </div>
-        </section>
-
         <div class="widgets">
+          <section class="panel wide-panel timer">
+            <div>
+              <h2>轻量番茄钟</h2>
+              <p class="hint">本地计时，不会发通知。适合“我就认真 40 分钟”。</p>
+            </div>
+            <div class="timer-display" id="timerDisplay">40:00</div>
+            <div class="timer-controls">
+              <button class="btn primary" type="button" id="timerStart">开始</button>
+              <button class="btn" type="button" id="timerPause">暂停</button>
+              <button class="btn" type="button" id="timerReset">重置</button>
+            </div>
+          </section>
+
           <section class="panel wide-panel quote">
             <div>
               <h2>摸鱼小卡片</h2>
-              <p class="quote-text" id="quoteText">正在生成今日精神燃料。</p>
+              <p class="hint">随机给今天一点精神燃料，也可以顺手开个短休息。</p>
             </div>
+            <p class="quote-text" id="quoteText">正在生成今日精神燃料。</p>
             <div class="button-row">
               <button class="btn primary" type="button" id="newQuote">换一句</button>
               <button class="btn" type="button" id="miniBreak">3 分钟休息</button>
@@ -907,9 +968,12 @@
 
         </div>
 
-        <div class="bottom-actions">
+        <div class="action-grid">
           <div class="mood-picker">
-            <button class="mood-trigger" type="button" id="moodState" aria-haspopup="true">今日总结</button>
+            <button class="mood-trigger action-mood" type="button" id="moodState" aria-haspopup="true">
+              <span class="action-title">今日总结</span>
+              <span class="action-desc">给今天的精神状态盖个章</span>
+            </button>
             <div class="mood-options" id="moodOptions" aria-label="选择今天的精神状态">
               <button class="mood-btn" type="button" data-mood="escape" title="想跑路">🏃</button>
               <button class="mood-btn" type="button" data-mood="annoyed" title="烦">😵</button>
@@ -920,10 +984,38 @@
           </div>
 
           <nav class="quick-links" aria-label="辅助页面">
-            <a class="quick-link" href="calendar.html">工资日历</a>
-            <a class="quick-link" href="moyu.html">摸鱼百科</a>
+            <a class="quick-link action-calendar" href="calendar.html">
+              <span class="action-title">工资日历</span>
+              <span class="action-desc">看看这个月值多少钱</span>
+            </a>
+            <a class="quick-link action-moyu" href="moyu.html">
+              <span class="action-title">摸鱼百科</span>
+              <span class="action-desc">奇怪网页收藏室</span>
+            </a>
+            <a class="quick-link action-income" href="income.html">
+              <span class="action-title">收入档案</span>
+              <span class="action-desc">记录五险一金和退休估算</span>
+            </a>
           </nav>
         </div>
+
+        <details class="panel wide-panel backup-panel">
+          <summary>
+            <span>
+              数据备份
+              <span class="hint">导出或导入这个小账本的全部本地数据</span>
+            </span>
+            <span class="hint">展开</span>
+          </summary>
+          <div class="backup-content">
+            <p class="hint">导出会生成一个 JSON 文件；导入会覆盖当前浏览器里的工资配置、心情记录、收入档案和节假日缓存。</p>
+            <div class="button-row">
+              <button class="btn primary" type="button" id="exportData">导出备份</button>
+              <button class="btn" type="button" id="importData">导入备份</button>
+              <input class="hidden-file" id="backupFile" type="file" accept="application/json,.json">
+            </div>
+          </div>
+        </details>
 
         <p class="footer-note">本页面是纯本地单文件，不登录、不联网、不上传数据。税前口径只做参考，不替代个税和社保公积金计算。</p>
       </section>
@@ -935,6 +1027,8 @@
   <script>
     const STORAGE_KEY = "salaryDashboardSettings.v1";
     const MOOD_STORAGE_KEY = "salaryDashboardMoodLog.v1";
+    const INCOME_PROFILE_KEY = "salaryDashboardIncomeProfile.v1";
+    const INCOME_SEGMENTS_KEY = "salaryDashboardIncomeSegments.v1";
     const DEFAULTS = {
       salary: "",
       salaryType: "afterTax",
@@ -1006,11 +1100,15 @@
     const quoteText = document.querySelector("#quoteText");
     const newQuote = document.querySelector("#newQuote");
     const miniBreak = document.querySelector("#miniBreak");
+    const exportDataBtn = document.querySelector("#exportData");
+    const importDataBtn = document.querySelector("#importData");
+    const backupFileInput = document.querySelector("#backupFile");
     const timerDisplay = document.querySelector("#timerDisplay");
     const timerStart = document.querySelector("#timerStart");
     const timerPause = document.querySelector("#timerPause");
     const timerReset = document.querySelector("#timerReset");
     const moodState = document.querySelector("#moodState");
+    const moodStateTitle = moodState.querySelector(".action-title");
     const moodOptions = document.querySelector("#moodOptions");
     const moodEffect = document.querySelector("#moodEffect");
 
@@ -1044,7 +1142,7 @@
     function renderMoodState() {
       const todayKey = formatDateKey(new Date());
       const mood = loadMoodLog()[todayKey];
-      moodState.textContent = mood ? `今日总结 ${MOODS[mood].icon}` : "今日总结";
+      moodStateTitle.textContent = mood ? `今日总结 ${MOODS[mood].icon}` : "今日总结";
       moodState.title = mood ? `今天：${MOODS[mood].label}` : "今天还没有记录";
       moodOptions.querySelectorAll(".mood-btn").forEach((button) => {
         button.classList.toggle("is-active", button.dataset.mood === mood);
@@ -1119,6 +1217,82 @@
       saveHandle = setTimeout(() => {
         saveState.textContent = "自动保存";
       }, 1200);
+    }
+
+    function collectBackupData() {
+      const keys = [STORAGE_KEY, MOOD_STORAGE_KEY, INCOME_PROFILE_KEY, INCOME_SEGMENTS_KEY];
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (key && key.startsWith(HOLIDAY_CACHE_PREFIX)) keys.push(key);
+      }
+
+      const data = {};
+      [...new Set(keys)].forEach((key) => {
+        const value = localStorage.getItem(key);
+        if (value !== null) data[key] = value;
+      });
+
+      return {
+        app: "salary-dashboard",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        data
+      };
+    }
+
+    function exportBackup() {
+      const backup = collectBackupData();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const date = new Date().toISOString().slice(0, 10);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `salary-dashboard-backup-${date}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackupFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const backup = JSON.parse(reader.result);
+          if (backup.app !== "salary-dashboard" || !backup.data || typeof backup.data !== "object") {
+            alert("这个文件不像是工资小账本的备份文件。");
+            return;
+          }
+
+          const allowedKeys = Object.keys(backup.data).filter((key) =>
+            key === STORAGE_KEY ||
+            key === MOOD_STORAGE_KEY ||
+            key === INCOME_PROFILE_KEY ||
+            key === INCOME_SEGMENTS_KEY ||
+            key.startsWith(HOLIDAY_CACHE_PREFIX)
+          );
+
+          if (!allowedKeys.length) {
+            alert("备份文件里没有可恢复的数据。");
+            return;
+          }
+
+          const ok = confirm(`将导入 ${allowedKeys.length} 项本地数据，并覆盖当前浏览器里的同类数据。继续吗？`);
+          if (!ok) return;
+
+          allowedKeys.forEach((key) => {
+            localStorage.setItem(key, String(backup.data[key]));
+          });
+          alert("导入完成，页面会刷新来读取恢复的数据。");
+          window.location.reload();
+        } catch {
+          alert("读取失败，请确认选择的是 JSON 备份文件。");
+        } finally {
+          backupFileInput.value = "";
+        }
+      };
+      reader.readAsText(file);
     }
 
     function updateSettingsSummary() {
@@ -1470,6 +1644,11 @@
     timerStart.addEventListener("click", startTimer);
     timerPause.addEventListener("click", pauseTimer);
     timerReset.addEventListener("click", () => resetTimer());
+    exportDataBtn.addEventListener("click", exportBackup);
+    importDataBtn.addEventListener("click", () => backupFileInput.click());
+    backupFileInput.addEventListener("change", () => {
+      importBackupFile(backupFileInput.files[0]);
+    });
     moodOptions.addEventListener("click", (event) => {
       const button = event.target.closest(".mood-btn");
       if (!button) return;

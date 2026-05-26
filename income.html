@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>收入档案</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f2;
+      --panel: #ffffff;
+      --panel-soft: #eef5ef;
+      --text: #18201b;
+      --muted: #657068;
+      --line: #dce4dd;
+      --accent: #31765a;
+      --accent-2: #d77c3f;
+      --accent-3: #5166a5;
+      --danger: #b64a4a;
+      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
+        var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
+        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
+        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
+        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
+        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
+        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.48;
+      background-image:
+        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
+        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
+      background-size: 260px 260px, 310px 310px;
+      background-position: right 76px top 68px, left 54px bottom 80px;
+      background-repeat: no-repeat;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      position: relative;
+      z-index: 0;
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .back,
+    .btn {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border: 1px solid #c9d5cc;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 760;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn.danger {
+      color: var(--danger);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card,
+    .panel,
+    details {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      min-height: 126px;
+      padding: 18px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .value {
+      margin-top: 10px;
+      font-size: clamp(24px, 3vw, 32px);
+      font-weight: 820;
+      line-height: 1.15;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel,
+    details {
+      padding: 18px;
+    }
+
+    .account-panel {
+      margin-bottom: 18px;
+    }
+
+    .panel-head,
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 820;
+      font-size: 18px;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .segment-editor {
+      display: none;
+      margin-top: 16px;
+      padding-top: 2px;
+    }
+
+    .segment-editor.is-open {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .rate-box {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+      box-shadow: none;
+    }
+
+    .rate-box summary {
+      font-size: 16px;
+    }
+
+    .supplement-box {
+      margin-top: 12px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: none;
+    }
+
+    .supplement-box summary {
+      min-height: 46px;
+      padding: 0 14px;
+      font-size: 15px;
+    }
+
+    .supplement-body {
+      padding: 0 14px 14px;
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    .contribution-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .contribution-group {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .contribution-group.personal {
+      border-color: rgba(49, 118, 90, 0.28);
+      background: rgba(238, 245, 239, 0.82);
+    }
+
+    .contribution-group.employer {
+      border-color: rgba(81, 102, 165, 0.25);
+      background: rgba(241, 244, 255, 0.72);
+    }
+
+    .group-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 820;
+    }
+
+    .retirement-panel {
+      margin-top: 18px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .retirement-panel summary,
+    .retirement-panel summary {
+      min-height: 70px;
+      padding: 18px;
+    }
+
+    .retirement-content {
+      padding: 0 18px 18px;
+    }
+
+    .retirement-section {
+      margin-top: 18px;
+    }
+
+    .retirement-section:first-child {
+      margin-top: 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: #314139;
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .label-note {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid #c9d5cc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .segments {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .segments.is-empty {
+      margin-top: 0;
+    }
+
+    .segment-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .segment-title {
+      font-size: 17px;
+      font-weight: 820;
+    }
+
+    .segment-meta,
+    .mini-list {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .mini-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 8px;
+    }
+
+    .summary-line {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+    }
+
+    .summary-line strong {
+      color: var(--text);
+    }
+
+    .empty {
+      padding: 18px;
+      border: 1px dashed #c9d5cc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .result {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+    }
+
+    .result strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 20px;
+    }
+
+    .ledger-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .ledger-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .ledger-card.personal {
+      border-color: rgba(49, 118, 90, 0.28);
+      background: rgba(238, 245, 239, 0.82);
+    }
+
+    .ledger-card.employer {
+      border-color: rgba(81, 102, 165, 0.25);
+      background: rgba(241, 244, 255, 0.72);
+    }
+
+    .ledger-card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .ledger-row {
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(101, 112, 104, 0.16);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .ledger-row strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .ledger-row.total {
+      margin-top: 8px;
+      border-bottom: 0;
+      color: var(--text);
+      font-weight: 820;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(215, 124, 63, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 243, 224, 0.72);
+      color: #725139;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      margin: 18px 2px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .summary,
+      .layout,
+      .result-grid,
+      .contribution-groups,
+      .ledger-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 24px, 1180px);
+        padding-top: 20px;
+      }
+
+      .summary,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .segment-card {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-head,
+      summary {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .back,
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>收入档案</h1>
+        <p class="subtitle">把税前收入、社保医保和公积金都收进一个本地小账本。</p>
+      </div>
+      <a class="back" href="index.html">返回主页</a>
+    </header>
+
+    <section class="summary" aria-label="累计概览">
+      <article class="card">
+        <div class="label">入职以来税前总收入</div>
+        <div class="value" id="totalGross">--</div>
+        <p class="hint" id="monthCount">按工作段统计</p>
+      </article>
+      <article class="card">
+        <div class="label">已累计个人缴纳</div>
+        <div class="value" id="totalContrib">--</div>
+        <p class="hint">养老 + 医保 + 个人公积金 + 其他</p>
+      </article>
+      <article class="card">
+        <div class="label">已累计单位缴纳</div>
+        <div class="value" id="totalEmployerContrib">--</div>
+        <p class="hint">单位养老 + 医保 + 公积金</p>
+      </article>
+      <article class="card">
+        <div class="label">已累计养老个人缴纳</div>
+        <div class="value" id="totalPensionPaid">--</div>
+        <p class="hint">用于退休预测</p>
+      </article>
+      <article class="card">
+        <div class="label">预计退休月养老金</div>
+        <div class="value" id="monthlyPension">--</div>
+        <p class="hint" id="pensionRangeHint">填写预测假设后估算</p>
+      </article>
+    </section>
+
+    <section class="panel account-panel" aria-label="累计缴费明细">
+      <div class="panel-head">
+        <div>
+          <h2>累计缴费明细</h2>
+          <p class="hint">按个人和单位两个维度，看五险一金累计缴纳情况。</p>
+        </div>
+      </div>
+      <div class="ledger-grid">
+        <section class="ledger-card personal" aria-label="个人累计缴费">
+          <h3>个人缴费</h3>
+          <div class="ledger-row"><span>养老</span><strong id="personalPensionLedger">--</strong></div>
+          <div class="ledger-row"><span>医保</span><strong id="personalMedicalLedger">--</strong></div>
+          <div class="ledger-row"><span>失业</span><strong id="personalUnemploymentLedger">--</strong></div>
+          <div class="ledger-row"><span>工伤</span><strong id="personalInjuryLedger">--</strong></div>
+          <div class="ledger-row"><span>生育</span><strong id="personalMaternityLedger">--</strong></div>
+          <div class="ledger-row"><span>公积金</span><strong id="personalFundLedger">--</strong></div>
+          <div class="ledger-row total"><span>总计</span><strong id="personalTotalLedger">--</strong></div>
+        </section>
+
+        <section class="ledger-card employer" aria-label="单位累计缴费">
+          <h3>单位缴费</h3>
+          <div class="ledger-row"><span>养老</span><strong id="employerPensionLedger">--</strong></div>
+          <div class="ledger-row"><span>医保</span><strong id="employerMedicalLedger">--</strong></div>
+          <div class="ledger-row"><span>失业</span><strong id="employerUnemploymentLedger">--</strong></div>
+          <div class="ledger-row"><span>工伤</span><strong id="employerInjuryLedger">--</strong></div>
+          <div class="ledger-row"><span>生育</span><strong id="employerMaternityLedger">--</strong></div>
+          <div class="ledger-row"><span>公积金</span><strong id="employerFundLedger">--</strong></div>
+          <div class="ledger-row total"><span>总计</span><strong id="employerTotalLedger">--</strong></div>
+        </section>
+      </div>
+      <p class="hint">养老个人账户只按个人养老缴费和你填写的当前账户余额估算；单位养老通常进入统筹，不直接加到个人账户。</p>
+    </section>
+
+    <div class="layout">
+      <section class="panel" aria-label="收入记录">
+        <div class="panel-head">
+          <div>
+            <h2>收入记录</h2>
+            <p class="hint">按公司、调薪或缴纳变化分段记录。结束年月留空表示当前仍在继续。</p>
+          </div>
+          <button class="btn primary" type="button" id="toggleSegmentEditor">添加工作段</button>
+        </div>
+
+        <div class="segment-editor" id="segmentEditor">
+          <form class="form-grid" id="segmentForm">
+            <input type="hidden" id="segmentId">
+            <label class="full">公司 / 阶段名称
+              <input id="segmentName" type="text" placeholder="例如 第一份工作 / 2026 调薪后">
+            </label>
+            <label>开始年月
+              <input id="segmentStart" type="month">
+            </label>
+            <label>结束年月
+              <input id="segmentEnd" type="month">
+            </label>
+            <label>月税前工资
+              <span class="label-note">输入后会先同步到社保和公积金基数，基数仍可单独修改。</span>
+              <input id="grossSalary" type="number" min="0" step="100" placeholder="例如 12000">
+            </label>
+            <details class="rate-box full">
+              <summary>
+                <span>基数与比例速算</span>
+                <span class="hint">默认参考比例，可改</span>
+              </summary>
+              <div class="form-grid">
+                <label>社保缴费基数
+                  <input id="socialBase" type="number" min="0" step="100" placeholder="不填则用税前工资">
+                </label>
+                <label>公积金缴存基数
+                  <input id="housingBase" type="number" min="0" step="100" placeholder="不填则用税前工资">
+                </label>
+                <div class="contribution-groups full">
+                  <section class="contribution-group personal" aria-label="个人缴费比例">
+                    <p class="group-title">个人比例</p>
+                    <label>个人养老 %
+                      <input id="personalPensionRate" type="number" min="0" step="0.1" value="8">
+                    </label>
+                    <label>个人医保 %
+                      <input id="personalMedicalRate" type="number" min="0" step="0.1" value="2">
+                    </label>
+                    <label>个人失业 %
+                      <input id="personalUnemploymentRate" type="number" min="0" step="0.1" value="0.5">
+                    </label>
+                    <label>个人工伤 %
+                      <input id="personalInjuryRate" type="number" min="0" step="0.1" value="0">
+                    </label>
+                    <label>个人生育 %
+                      <input id="personalMaternityRate" type="number" min="0" step="0.1" value="0">
+                    </label>
+                    <label>个人公积金 %
+                      <input id="personalFundRate" type="number" min="0" step="0.1" value="7">
+                    </label>
+                  </section>
+
+                  <section class="contribution-group employer" aria-label="单位缴费比例">
+                    <p class="group-title">单位比例</p>
+                    <label>单位养老 %
+                      <input id="employerPensionRate" type="number" min="0" step="0.1" value="16">
+                    </label>
+                    <label>单位医保 %
+                      <input id="employerMedicalRate" type="number" min="0" step="0.1" value="8">
+                    </label>
+                    <label>单位失业 %
+                      <input id="employerUnemploymentRate" type="number" min="0" step="0.1" value="0.5">
+                    </label>
+                    <label>单位工伤 %
+                      <input id="employerInjuryRate" type="number" min="0" step="0.1" value="0.2">
+                    </label>
+                    <label>单位生育 %
+                      <input id="employerMaternityRate" type="number" min="0" step="0.1" value="0.8">
+                    </label>
+                    <label>单位公积金 %
+                      <input id="employerFundRate" type="number" min="0" step="0.1" value="7">
+                    </label>
+                  </section>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="btn primary" type="button" id="applyRates">按比例填入金额</button>
+              </div>
+              <p class="hint">养老个人 8%、单位 16% 是常见口径；医保、失业、工伤、生育和公积金会因地区与单位而变，这里作为算账默认值。</p>
+            </details>
+            <div class="contribution-groups full">
+              <section class="contribution-group personal" aria-label="个人缴费">
+                <p class="group-title">个人缴费</p>
+                <label>每月个人养老
+                  <input id="pensionPay" type="number" min="0" step="10" placeholder="例如 960">
+                </label>
+                <label>每月个人医保
+                  <input id="medicalPay" type="number" min="0" step="10" placeholder="例如 240">
+                </label>
+                <label>每月个人失业
+                  <input id="unemploymentPay" type="number" min="0" step="10" placeholder="可由比例速算">
+                </label>
+                <label>每月个人工伤
+                  <input id="personalInjuryPay" type="number" min="0" step="10" placeholder="默认 0">
+                </label>
+                <label>每月个人生育
+                  <input id="personalMaternityPay" type="number" min="0" step="10" placeholder="默认 0">
+                </label>
+                <label>每月个人公积金
+                  <input id="fundPay" type="number" min="0" step="10" placeholder="你自己扣缴的单边金额">
+                </label>
+              </section>
+
+              <section class="contribution-group employer" aria-label="单位缴费">
+                <p class="group-title">单位缴费</p>
+                <label>每月单位养老
+                  <input id="employerPensionPay" type="number" min="0" step="10" placeholder="公司缴纳，可不填">
+                </label>
+                <label>每月单位医保
+                  <input id="employerMedicalPay" type="number" min="0" step="10" placeholder="公司缴纳，可不填">
+                </label>
+                <label>每月单位失业
+                  <input id="employerUnemploymentPay" type="number" min="0" step="10" placeholder="可由比例速算">
+                </label>
+                <label>每月单位工伤
+                  <input id="employerInjuryPay" type="number" min="0" step="10" placeholder="个人不缴">
+                </label>
+                <label>每月单位生育
+                  <input id="employerMaternityPay" type="number" min="0" step="10" placeholder="个人不缴">
+                </label>
+                <label>每月单位公积金
+                  <input id="employerFundPay" type="number" min="0" step="10" placeholder="默认等于个人公积金">
+                </label>
+              </section>
+            </div>
+            <details class="supplement-box full">
+              <summary>
+                <span>补充缴纳</span>
+                <span class="hint">商业保险 / 其他扣款</span>
+              </summary>
+              <div class="supplement-body">
+                <label>每月商业保险或其他个人扣款
+                  <input id="otherPay" type="number" min="0" step="10" placeholder="可不填">
+                </label>
+              </div>
+            </details>
+          </form>
+
+          <div class="button-row">
+            <button class="btn primary" type="button" id="saveSegment">保存工作段</button>
+            <button class="btn" type="button" id="clearForm">清空表单</button>
+            <button class="btn" type="button" id="cancelSegment">收起</button>
+          </div>
+        </div>
+
+        <div class="segments" id="segments"></div>
+      </section>
+
+    </div>
+
+    <details class="retirement-panel" id="retirementPanel">
+      <summary>
+        <span>
+          退休档案与预测
+          <span class="hint" id="retirementSummary">填写出生年月和退休假设后估算</span>
+        </span>
+        <span class="hint">展开</span>
+      </summary>
+
+      <div class="retirement-content">
+        <section class="retirement-section" aria-label="个人档案">
+          <div class="panel-head">
+            <div>
+              <h2>个人档案</h2>
+              <p class="hint">这些只存在当前浏览器里，用来推算工作年限和退休时间。</p>
+            </div>
+            <button class="btn primary" type="button" id="saveProfile">保存档案</button>
+          </div>
+
+          <form class="form-grid" id="profileForm">
+            <label>出生年月
+              <input id="birthMonth" type="month">
+            </label>
+            <label>退休类别
+              <select id="retireType">
+                <option value="female50">女职工 50 岁参考</option>
+                <option value="female55">女干部 / 灵活 55 岁参考</option>
+                <option value="male60">男职工 60 岁参考</option>
+              </select>
+            </label>
+            <label>开始工作年月
+              <input id="careerStart" type="month">
+            </label>
+            <label>预计退休年龄
+              <input id="retireAge" type="number" min="45" max="70" step="0.1">
+            </label>
+            <label>当前养老个人账户余额
+              <input id="accountBalance" type="number" min="0" step="100" placeholder="可不填">
+            </label>
+            <label>当前所在省市
+              <input id="city" type="text" placeholder="例如 上海">
+            </label>
+          </form>
+        </section>
+
+        <section class="retirement-section" aria-label="退休预测">
+          <p class="section-kicker">退休预测</p>
+          <form class="form-grid" id="assumptionForm">
+            <label>未来工资年增长率
+              <input id="salaryGrowth" type="number" step="0.1" value="3">
+            </label>
+            <label>社平工资年增长率
+              <input id="socialGrowth" type="number" step="0.1" value="3">
+            </label>
+            <label>当前参考社平工资
+              <input id="socialSalary" type="number" min="0" step="100" placeholder="不填则不算基础养老金">
+            </label>
+            <label>平均缴费指数
+              <input id="payIndex" type="number" min="0.1" step="0.1" value="1">
+            </label>
+          </form>
+
+          <div class="result-grid">
+            <div class="result">
+              <div class="label">未来还会缴养老</div>
+              <strong id="futurePension">--</strong>
+            </div>
+            <div class="result">
+              <div class="label">退休时个人账户估算</div>
+              <strong id="retireAccount">--</strong>
+            </div>
+            <div class="result">
+              <div class="label">基础养老金</div>
+              <strong id="basePension">待补充</strong>
+            </div>
+            <div class="result">
+              <div class="label">个人账户养老金</div>
+              <strong id="accountPension">--</strong>
+            </div>
+          </div>
+
+          <div class="notice">
+            这是本地估算，不替代社保部门核定。个人账户养老金只使用个人养老缴费和当前个人账户余额；单位养老缴费单独统计，通常进入统筹，不直接加进个人账户。公积金会按个人与单位双边展示，但不混入养老金公式。
+          </div>
+        </section>
+      </div>
+    </details>
+
+    <p class="footer-note">本页面只在当前浏览器本地保存数据。换浏览器、清理浏览器数据或换设备后，需要重新填写。</p>
+  </main>
+
+  <script>
+    const PROFILE_KEY = "salaryDashboardIncomeProfile.v1";
+    const SEGMENTS_KEY = "salaryDashboardIncomeSegments.v1";
+    const DEFAULT_PROFILE = {
+      birthMonth: "",
+      retireType: "female50",
+      careerStart: "",
+      retireAge: "",
+      accountBalance: "",
+      city: "",
+      salaryGrowth: 3,
+      socialGrowth: 3,
+      socialSalary: "",
+      payIndex: 1
+    };
+
+    const els = {
+      totalGross: document.querySelector("#totalGross"),
+      monthCount: document.querySelector("#monthCount"),
+      totalContrib: document.querySelector("#totalContrib"),
+      totalEmployerContrib: document.querySelector("#totalEmployerContrib"),
+      totalPensionPaid: document.querySelector("#totalPensionPaid"),
+      monthlyPension: document.querySelector("#monthlyPension"),
+      pensionRangeHint: document.querySelector("#pensionRangeHint"),
+      personalPensionLedger: document.querySelector("#personalPensionLedger"),
+      personalMedicalLedger: document.querySelector("#personalMedicalLedger"),
+      personalUnemploymentLedger: document.querySelector("#personalUnemploymentLedger"),
+      personalInjuryLedger: document.querySelector("#personalInjuryLedger"),
+      personalMaternityLedger: document.querySelector("#personalMaternityLedger"),
+      personalFundLedger: document.querySelector("#personalFundLedger"),
+      personalTotalLedger: document.querySelector("#personalTotalLedger"),
+      employerPensionLedger: document.querySelector("#employerPensionLedger"),
+      employerMedicalLedger: document.querySelector("#employerMedicalLedger"),
+      employerUnemploymentLedger: document.querySelector("#employerUnemploymentLedger"),
+      employerInjuryLedger: document.querySelector("#employerInjuryLedger"),
+      employerMaternityLedger: document.querySelector("#employerMaternityLedger"),
+      employerFundLedger: document.querySelector("#employerFundLedger"),
+      employerTotalLedger: document.querySelector("#employerTotalLedger"),
+      retirementSummary: document.querySelector("#retirementSummary"),
+      segments: document.querySelector("#segments"),
+      segmentEditor: document.querySelector("#segmentEditor"),
+      toggleSegmentEditor: document.querySelector("#toggleSegmentEditor"),
+      applyRates: document.querySelector("#applyRates"),
+      saveSegment: document.querySelector("#saveSegment"),
+      clearForm: document.querySelector("#clearForm"),
+      cancelSegment: document.querySelector("#cancelSegment"),
+      saveProfile: document.querySelector("#saveProfile")
+    };
+
+    const segmentFields = [
+      "segmentId", "segmentName", "segmentStart", "segmentEnd", "grossSalary",
+      "socialBase", "housingBase",
+      "personalPensionRate", "employerPensionRate", "personalMedicalRate", "employerMedicalRate",
+      "personalUnemploymentRate", "employerUnemploymentRate", "personalInjuryRate", "employerInjuryRate", "personalMaternityRate", "employerMaternityRate",
+      "personalFundRate", "employerFundRate",
+      "pensionPay", "employerPensionPay", "medicalPay", "employerMedicalPay",
+      "unemploymentPay", "employerUnemploymentPay", "personalInjuryPay", "employerInjuryPay", "personalMaternityPay", "employerMaternityPay",
+      "fundPay", "employerFundPay", "otherPay"
+    ];
+    const profileFields = ["birthMonth", "retireType", "careerStart", "retireAge", "accountBalance", "city", "salaryGrowth", "socialGrowth", "socialSalary", "payIndex"];
+
+    function readJson(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || "null") || fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function money(value) {
+      return `¥${Math.round(value || 0).toLocaleString("zh-CN")}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function numberValue(id) {
+      return Number(document.querySelector(`#${id}`).value || 0);
+    }
+
+    function setNumberValue(id, value) {
+      document.querySelector(`#${id}`).value = value ? Number(value.toFixed(2)) : "";
+    }
+
+    function monthToIndex(month) {
+      if (!month) return null;
+      const [year, value] = month.split("-").map(Number);
+      return year * 12 + value - 1;
+    }
+
+    function indexToMonth(index) {
+      const year = Math.floor(index / 12);
+      const month = index % 12 + 1;
+      return `${year}-${String(month).padStart(2, "0")}`;
+    }
+
+    function currentMonth() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function monthsBetween(start, end) {
+      const startIndex = monthToIndex(start);
+      const endIndex = monthToIndex(end || currentMonth());
+      if (startIndex === null || endIndex === null || endIndex < startIndex) return 0;
+      return endIndex - startIndex + 1;
+    }
+
+    function loadProfile() {
+      return { ...DEFAULT_PROFILE, ...readJson(PROFILE_KEY, {}) };
+    }
+
+    function loadSegments() {
+      return readJson(SEGMENTS_KEY, []);
+    }
+
+    function saveProfileFromForm() {
+      const profile = {};
+      profileFields.forEach((id) => {
+        profile[id] = document.querySelector(`#${id}`).value;
+      });
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      render();
+    }
+
+    function saveSegments(segments) {
+      localStorage.setItem(SEGMENTS_KEY, JSON.stringify(segments));
+    }
+
+    function fillProfile(profile) {
+      profileFields.forEach((id) => {
+        document.querySelector(`#${id}`).value = profile[id] ?? "";
+      });
+    }
+
+    function collectSegment() {
+      return {
+        id: document.querySelector("#segmentId").value || String(Date.now()),
+        name: document.querySelector("#segmentName").value.trim() || "未命名工作段",
+        start: document.querySelector("#segmentStart").value,
+        end: document.querySelector("#segmentEnd").value,
+        gross: numberValue("grossSalary"),
+        socialBase: numberValue("socialBase"),
+        housingBase: numberValue("housingBase"),
+        personalPensionRate: numberValue("personalPensionRate"),
+        employerPensionRate: numberValue("employerPensionRate"),
+        personalMedicalRate: numberValue("personalMedicalRate"),
+        employerMedicalRate: numberValue("employerMedicalRate"),
+        personalUnemploymentRate: numberValue("personalUnemploymentRate"),
+        employerUnemploymentRate: numberValue("employerUnemploymentRate"),
+        personalInjuryRate: numberValue("personalInjuryRate"),
+        employerInjuryRate: numberValue("employerInjuryRate"),
+        personalMaternityRate: numberValue("personalMaternityRate"),
+        employerMaternityRate: numberValue("employerMaternityRate"),
+        personalFundRate: numberValue("personalFundRate"),
+        employerFundRate: numberValue("employerFundRate"),
+        pension: numberValue("pensionPay"),
+        employerPension: numberValue("employerPensionPay"),
+        medical: numberValue("medicalPay"),
+        employerMedical: numberValue("employerMedicalPay"),
+        unemployment: numberValue("unemploymentPay"),
+        employerUnemployment: numberValue("employerUnemploymentPay"),
+        personalInjury: numberValue("personalInjuryPay"),
+        employerInjury: numberValue("employerInjuryPay"),
+        personalMaternity: numberValue("personalMaternityPay"),
+        employerMaternity: numberValue("employerMaternityPay"),
+        fund: numberValue("fundPay"),
+        employerFund: document.querySelector("#employerFundPay").value === "" ? numberValue("fundPay") : numberValue("employerFundPay"),
+        other: numberValue("otherPay")
+      };
+    }
+
+    function fillSegment(segment) {
+      openSegmentEditor(true);
+      document.querySelector("#segmentId").value = segment.id;
+      document.querySelector("#segmentName").value = segment.name;
+      document.querySelector("#segmentStart").value = segment.start;
+      document.querySelector("#segmentEnd").value = segment.end || "";
+      document.querySelector("#grossSalary").value = segment.gross || "";
+      document.querySelector("#socialBase").value = segment.socialBase || "";
+      document.querySelector("#housingBase").value = segment.housingBase || "";
+      document.querySelector("#personalPensionRate").value = segment.personalPensionRate || 8;
+      document.querySelector("#employerPensionRate").value = segment.employerPensionRate || 16;
+      document.querySelector("#personalMedicalRate").value = segment.personalMedicalRate || 2;
+      document.querySelector("#employerMedicalRate").value = segment.employerMedicalRate || 8;
+      document.querySelector("#personalUnemploymentRate").value = segment.personalUnemploymentRate ?? 0.5;
+      document.querySelector("#employerUnemploymentRate").value = segment.employerUnemploymentRate ?? 0.5;
+      document.querySelector("#personalInjuryRate").value = segment.personalInjuryRate ?? 0;
+      document.querySelector("#employerInjuryRate").value = segment.employerInjuryRate ?? 0.2;
+      document.querySelector("#personalMaternityRate").value = segment.personalMaternityRate ?? 0;
+      document.querySelector("#employerMaternityRate").value = segment.employerMaternityRate ?? 0.8;
+      document.querySelector("#personalFundRate").value = segment.personalFundRate || 7;
+      document.querySelector("#employerFundRate").value = segment.employerFundRate || 7;
+      document.querySelector("#pensionPay").value = segment.pension || "";
+      document.querySelector("#employerPensionPay").value = segment.employerPension || "";
+      document.querySelector("#medicalPay").value = segment.medical || "";
+      document.querySelector("#employerMedicalPay").value = segment.employerMedical || "";
+      document.querySelector("#unemploymentPay").value = segment.unemployment || "";
+      document.querySelector("#employerUnemploymentPay").value = segment.employerUnemployment || "";
+      document.querySelector("#personalInjuryPay").value = segment.personalInjury || "";
+      document.querySelector("#employerInjuryPay").value = segment.employerInjury || "";
+      document.querySelector("#personalMaternityPay").value = segment.personalMaternity || "";
+      document.querySelector("#employerMaternityPay").value = segment.employerMaternity || "";
+      document.querySelector("#fundPay").value = segment.fund || "";
+      document.querySelector("#employerFundPay").value = segment.employerFund ?? segment.fund ?? "";
+      document.querySelector("#otherPay").value = segment.other || "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openSegmentEditor(isEditing = false) {
+      els.segmentEditor.classList.add("is-open");
+      els.toggleSegmentEditor.textContent = isEditing ? "正在编辑" : "正在添加";
+      els.toggleSegmentEditor.setAttribute("aria-expanded", "true");
+    }
+
+    function closeSegmentEditor() {
+      els.segmentEditor.classList.remove("is-open");
+      els.toggleSegmentEditor.textContent = "添加工作段";
+      els.toggleSegmentEditor.setAttribute("aria-expanded", "false");
+    }
+
+    function clearSegmentForm() {
+      segmentFields.forEach((id) => {
+        document.querySelector(`#${id}`).value = "";
+      });
+      document.querySelector("#personalPensionRate").value = 8;
+      document.querySelector("#employerPensionRate").value = 16;
+      document.querySelector("#personalMedicalRate").value = 2;
+      document.querySelector("#employerMedicalRate").value = 8;
+      document.querySelector("#personalUnemploymentRate").value = 0.5;
+      document.querySelector("#employerUnemploymentRate").value = 0.5;
+      document.querySelector("#personalInjuryRate").value = 0;
+      document.querySelector("#employerInjuryRate").value = 0.2;
+      document.querySelector("#personalMaternityRate").value = 0;
+      document.querySelector("#employerMaternityRate").value = 0.8;
+      document.querySelector("#personalFundRate").value = 7;
+      document.querySelector("#employerFundRate").value = 7;
+      els.toggleSegmentEditor.textContent = "正在添加";
+    }
+
+    function applyRateCalculation() {
+      const gross = numberValue("grossSalary");
+      const socialBase = numberValue("socialBase") || gross;
+      const housingBase = numberValue("housingBase") || gross;
+      if (!socialBase && !housingBase) {
+        alert("先填月税前工资，或者单独填社保/公积金基数。");
+        return;
+      }
+
+      if (!document.querySelector("#socialBase").value && gross) setNumberValue("socialBase", gross);
+      if (!document.querySelector("#housingBase").value && gross) setNumberValue("housingBase", gross);
+      setNumberValue("pensionPay", socialBase * numberValue("personalPensionRate") / 100);
+      setNumberValue("employerPensionPay", socialBase * numberValue("employerPensionRate") / 100);
+      setNumberValue("medicalPay", socialBase * numberValue("personalMedicalRate") / 100);
+      setNumberValue("employerMedicalPay", socialBase * numberValue("employerMedicalRate") / 100);
+      setNumberValue("unemploymentPay", socialBase * numberValue("personalUnemploymentRate") / 100);
+      setNumberValue("employerUnemploymentPay", socialBase * numberValue("employerUnemploymentRate") / 100);
+      setNumberValue("personalInjuryPay", socialBase * numberValue("personalInjuryRate") / 100);
+      setNumberValue("employerInjuryPay", socialBase * numberValue("employerInjuryRate") / 100);
+      setNumberValue("personalMaternityPay", socialBase * numberValue("personalMaternityRate") / 100);
+      setNumberValue("employerMaternityPay", socialBase * numberValue("employerMaternityRate") / 100);
+      setNumberValue("fundPay", housingBase * numberValue("personalFundRate") / 100);
+      setNumberValue("employerFundPay", housingBase * numberValue("employerFundRate") / 100);
+    }
+
+    function saveSegment() {
+      const segment = collectSegment();
+      if (!segment.start) {
+        alert("先填开始年月，小账本才知道从哪天开始算。");
+        return;
+      }
+
+      const segments = loadSegments();
+      const index = segments.findIndex((item) => item.id === segment.id);
+      if (index >= 0) {
+        segments[index] = segment;
+      } else {
+        segments.push(segment);
+      }
+      segments.sort((a, b) => (monthToIndex(a.start) || 0) - (monthToIndex(b.start) || 0));
+      saveSegments(segments);
+      clearSegmentForm();
+      closeSegmentEditor();
+      render();
+    }
+
+    function deleteSegment(id) {
+      const segments = loadSegments().filter((segment) => segment.id !== id);
+      saveSegments(segments);
+      render();
+    }
+
+    function calcTotals(segments) {
+      return segments.reduce((totals, segment) => {
+        const months = monthsBetween(segment.start, segment.end);
+        const personalFund = Number(segment.fund || 0);
+        const employerPension = Number(segment.employerPension || 0);
+        const employerMedical = Number(segment.employerMedical || 0);
+        const employerFund = Number(segment.employerFund ?? personalFund);
+        const unemployment = Number(segment.unemployment || 0);
+        const employerUnemployment = Number(segment.employerUnemployment || 0);
+        const personalInjury = Number(segment.personalInjury || 0);
+        const employerInjury = Number(segment.employerInjury || 0);
+        const personalMaternity = Number(segment.personalMaternity || 0);
+        const employerMaternity = Number(segment.employerMaternity || 0);
+        const contribution = (segment.pension + segment.medical + unemployment + personalInjury + personalMaternity + personalFund + segment.other) * months;
+        const employerContribution = (employerPension + employerMedical + employerUnemployment + employerInjury + employerMaternity + employerFund) * months;
+        totals.months += months;
+        totals.gross += segment.gross * months;
+        totals.pension += segment.pension * months;
+        totals.employerPension += employerPension * months;
+        totals.medical += segment.medical * months;
+        totals.employerMedical += employerMedical * months;
+        totals.unemployment += unemployment * months;
+        totals.personalInjury += personalInjury * months;
+        totals.employerUnemployment += employerUnemployment * months;
+        totals.employerInjury += employerInjury * months;
+        totals.personalMaternity += personalMaternity * months;
+        totals.employerMaternity += employerMaternity * months;
+        totals.fund += personalFund * months;
+        totals.employerFund += employerFund * months;
+        totals.other += segment.other * months;
+        totals.contribution += contribution;
+        totals.employerContribution += employerContribution;
+        totals.housingFund += (personalFund + employerFund) * months;
+        return totals;
+      }, { months: 0, gross: 0, pension: 0, employerPension: 0, medical: 0, employerMedical: 0, unemployment: 0, personalInjury: 0, employerUnemployment: 0, employerInjury: 0, personalMaternity: 0, employerMaternity: 0, fund: 0, employerFund: 0, housingFund: 0, other: 0, contribution: 0, employerContribution: 0 });
+    }
+
+    function estimateRetireMonth(profile) {
+      const birthIndex = monthToIndex(profile.birthMonth);
+      const age = Number(profile.retireAge || 0);
+      if (birthIndex === null || !age) return null;
+      return Math.round(birthIndex + age * 12);
+    }
+
+    function getCountingMonth(profile, segments) {
+      const starts = segments.map((segment) => monthToIndex(segment.start)).filter((value) => value !== null);
+      const careerStart = monthToIndex(profile.careerStart);
+      if (careerStart !== null) starts.push(careerStart);
+      return starts.length ? Math.min(...starts) : null;
+    }
+
+    function currentPensionMonthly(segments) {
+      const currentIndex = monthToIndex(currentMonth());
+      const active = segments
+        .filter((segment) => monthToIndex(segment.start) <= currentIndex && (!segment.end || monthToIndex(segment.end) >= currentIndex))
+        .at(-1);
+      return active ? active.pension : 0;
+    }
+
+    function futurePensionTotal(profile, segments) {
+      const retireIndex = estimateRetireMonth(profile);
+      const nowIndex = monthToIndex(currentMonth());
+      if (retireIndex === null || retireIndex <= nowIndex) return 0;
+
+      const monthlyBase = currentPensionMonthly(segments);
+      const growth = Number(profile.salaryGrowth || 0) / 100;
+      let total = 0;
+      for (let index = nowIndex + 1; index <= retireIndex; index += 1) {
+        const years = Math.floor((index - nowIndex - 1) / 12);
+        total += monthlyBase * ((1 + growth) ** years);
+      }
+      return total;
+    }
+
+    function accountMonths(age) {
+      if (age >= 60) return 139;
+      if (age >= 55) return 170;
+      if (age >= 50) return 195;
+      return 195;
+    }
+
+    function estimateDefaultRetireAge(profile) {
+      const retireType = profile.retireType || "female50";
+      const baseAge = retireType === "male60" ? 60 : retireType === "female55" ? 55 : 50;
+      const birthIndex = monthToIndex(profile.birthMonth);
+      if (birthIndex === null) return baseAge;
+
+      const originalRetireIndex = Math.round(birthIndex + baseAge * 12);
+      const reformStart = monthToIndex("2025-01");
+      if (originalRetireIndex < reformStart) return baseAge;
+
+      const isFemale50 = retireType === "female50";
+      const interval = isFemale50 ? 2 : 4;
+      const maxDelay = isFemale50 ? 60 : 36;
+      const delayMonths = Math.min(maxDelay, Math.floor((originalRetireIndex - reformStart) / interval) + 1);
+      return Number((baseAge + delayMonths / 12).toFixed(1));
+    }
+
+    function estimatePension(profile, totals, segments) {
+      const futurePaid = futurePensionTotal(profile, segments);
+      const account = Number(profile.accountBalance || 0) + totals.pension + futurePaid;
+      const retireAge = Number(profile.retireAge || 0);
+      const personalMonthly = retireAge ? account / accountMonths(retireAge) : 0;
+
+      const retireIndex = estimateRetireMonth(profile);
+      const nowIndex = monthToIndex(currentMonth());
+      const firstIndex = getCountingMonth(profile, segments);
+      const yearsToRetire = retireIndex && nowIndex ? Math.max(0, (retireIndex - nowIndex) / 12) : 0;
+      const paidYears = firstIndex && retireIndex ? Math.max(0, (retireIndex - firstIndex + 1) / 12) : totals.months / 12;
+      const socialSalary = Number(profile.socialSalary || 0);
+      const socialGrowth = Number(profile.socialGrowth || 0) / 100;
+      const payIndex = Number(profile.payIndex || 1);
+      const retireSocialSalary = socialSalary * ((1 + socialGrowth) ** yearsToRetire);
+      const base = socialSalary ? retireSocialSalary * (1 + payIndex) / 2 * paidYears * 0.01 : 0;
+      const totalMonthly = base + personalMonthly;
+
+      return { futurePaid, account, personalMonthly, base, totalMonthly, hasBase: Boolean(socialSalary) };
+    }
+
+    function renderSegments(segments) {
+      if (!segments.length) {
+        els.segments.classList.add("is-empty");
+        els.segments.innerHTML = `<div class="empty">还没有收入记录。先添加一个工作段，它会自动进入累计统计。</div>`;
+        return;
+      }
+
+      els.segments.classList.remove("is-empty");
+      els.segments.innerHTML = segments.map((segment) => {
+        const months = monthsBetween(segment.start, segment.end);
+        const personalFund = Number(segment.fund || 0);
+        const employerPension = Number(segment.employerPension || 0);
+        const employerMedical = Number(segment.employerMedical || 0);
+        const employerFund = Number(segment.employerFund ?? personalFund);
+        const unemployment = Number(segment.unemployment || 0);
+        const employerUnemployment = Number(segment.employerUnemployment || 0);
+        const personalInjury = Number(segment.personalInjury || 0);
+        const employerInjury = Number(segment.employerInjury || 0);
+        const personalMaternity = Number(segment.personalMaternity || 0);
+        const employerMaternity = Number(segment.employerMaternity || 0);
+        const contribution = (segment.pension + segment.medical + unemployment + personalInjury + personalMaternity + personalFund + segment.other) * months;
+        const employerContribution = (employerPension + employerMedical + employerUnemployment + employerInjury + employerMaternity + employerFund) * months;
+        const personalPensionTotal = Number(segment.pension || 0) * months;
+        const employerPensionTotal = employerPension * months;
+        const personalFundTotal = personalFund * months;
+        const employerFundTotal = employerFund * months;
+        return `
+          <article class="segment-card">
+            <div>
+              <div class="segment-title">${escapeHtml(segment.name)}</div>
+              <div class="segment-meta">${escapeHtml(segment.start)} - ${escapeHtml(segment.end || "至今")} · ${months} 个月</div>
+              <div class="mini-list">
+                <span>月税前 ${money(segment.gross)}</span>
+                <span class="summary-line"><strong>个人</strong> 累计 ${money(contribution)} · 养老 ${money(personalPensionTotal)} · 公积金 ${money(personalFundTotal)}</span>
+                <span class="summary-line"><strong>单位</strong> 累计 ${money(employerContribution)} · 养老 ${money(employerPensionTotal)} · 公积金 ${money(employerFundTotal)}</span>
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="btn" type="button" data-action="edit" data-id="${segment.id}">编辑</button>
+              <button class="btn danger" type="button" data-action="delete" data-id="${segment.id}">删除</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      const profile = loadProfile();
+      const segments = loadSegments();
+      const totals = calcTotals(segments);
+      const pension = estimatePension(profile, totals, segments);
+      const rangeLow = pension.totalMonthly * 0.9;
+      const rangeHigh = pension.totalMonthly * 1.1;
+
+      els.totalGross.textContent = money(totals.gross);
+      els.monthCount.textContent = totals.months ? `已统计 ${totals.months} 个月` : "按工作段统计";
+      els.totalContrib.textContent = money(totals.contribution);
+      els.totalEmployerContrib.textContent = money(totals.employerContribution);
+      els.totalPensionPaid.textContent = money(totals.pension);
+      els.monthlyPension.textContent = pension.totalMonthly ? `${money(rangeLow)} - ${money(rangeHigh)}` : "--";
+      els.pensionRangeHint.textContent = pension.hasBase ? "按当前假设给出约 10% 区间" : "未填社平工资，仅能估个人账户部分";
+      els.retirementSummary.textContent = pension.totalMonthly
+        ? `${profile.city || "未填城市"} · ${profile.retireAge || "--"} 岁退休 · 约 ${money(rangeLow)} - ${money(rangeHigh)}/月`
+        : "填写出生年月、工作年月和预测假设后估算";
+      els.personalPensionLedger.textContent = money(totals.pension);
+      els.personalMedicalLedger.textContent = money(totals.medical);
+      els.personalUnemploymentLedger.textContent = money(totals.unemployment);
+      els.personalInjuryLedger.textContent = money(totals.personalInjury);
+      els.personalMaternityLedger.textContent = money(totals.personalMaternity);
+      els.personalFundLedger.textContent = money(totals.fund);
+      els.personalTotalLedger.textContent = money(totals.contribution);
+      els.employerPensionLedger.textContent = money(totals.employerPension);
+      els.employerMedicalLedger.textContent = money(totals.employerMedical);
+      els.employerUnemploymentLedger.textContent = money(totals.employerUnemployment);
+      els.employerInjuryLedger.textContent = money(totals.employerInjury);
+      els.employerMaternityLedger.textContent = money(totals.employerMaternity);
+      els.employerFundLedger.textContent = money(totals.employerFund);
+      els.employerTotalLedger.textContent = money(totals.employerContribution);
+
+      document.querySelector("#futurePension").textContent = money(pension.futurePaid);
+      document.querySelector("#retireAccount").textContent = money(pension.account);
+      document.querySelector("#basePension").textContent = pension.hasBase ? money(pension.base) : "待补充";
+      document.querySelector("#accountPension").textContent = pension.personalMonthly ? money(pension.personalMonthly) : "--";
+      renderSegments(segments);
+    }
+
+    function syncRetireAge() {
+      const retireAge = document.querySelector("#retireAge");
+      if (!retireAge.value) {
+        retireAge.value = estimateDefaultRetireAge({
+          birthMonth: document.querySelector("#birthMonth").value,
+          retireType: document.querySelector("#retireType").value
+        });
+      }
+    }
+
+    fillProfile(loadProfile());
+    syncRetireAge();
+    closeSegmentEditor();
+    render();
+
+    els.saveProfile.addEventListener("click", saveProfileFromForm);
+    els.applyRates.addEventListener("click", applyRateCalculation);
+    els.toggleSegmentEditor.addEventListener("click", () => {
+      if (els.segmentEditor.classList.contains("is-open")) {
+        closeSegmentEditor();
+        return;
+      }
+      clearSegmentForm();
+      openSegmentEditor();
+    });
+    els.saveSegment.addEventListener("click", saveSegment);
+    els.clearForm.addEventListener("click", clearSegmentForm);
+    els.cancelSegment.addEventListener("click", () => {
+      clearSegmentForm();
+      closeSegmentEditor();
+    });
+
+    document.querySelector("#fundPay").addEventListener("input", () => {
+      const employerFund = document.querySelector("#employerFundPay");
+      if (!employerFund.value) {
+        employerFund.value = document.querySelector("#fundPay").value;
+      }
+    });
+
+    document.querySelector("#grossSalary").addEventListener("input", () => {
+      const gross = document.querySelector("#grossSalary").value;
+      if (!document.querySelector("#socialBase").value) document.querySelector("#socialBase").value = gross;
+      if (!document.querySelector("#housingBase").value) document.querySelector("#housingBase").value = gross;
+    });
+
+    document.querySelector("#retireType").addEventListener("change", () => {
+      document.querySelector("#retireAge").value = "";
+      syncRetireAge();
+      saveProfileFromForm();
+    });
+
+    document.querySelector("#birthMonth").addEventListener("change", () => {
+      document.querySelector("#retireAge").value = "";
+      syncRetireAge();
+      saveProfileFromForm();
+    });
+
+    [...document.querySelectorAll("#profileForm input, #profileForm select, #assumptionForm input")].forEach((input) => {
+      input.addEventListener("change", saveProfileFromForm);
+    });
+
+    els.segments.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const id = button.dataset.id;
+      if (button.dataset.action === "edit") {
+        const segment = loadSegments().find((item) => item.id === id);
+        if (segment) fillSegment(segment);
+      }
+      if (button.dataset.action === "delete") {
+        deleteSegment(id);
+      }
+    });
+  </script>
+</body>
+</html>
