@@ -7,17 +7,65 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f6f2;
+      --bg: #ffeee0;
+      --panel: #fffaf7;
+      --panel-soft: #f8eee8;
+      --text: #1d1b19;
+      --muted: #6f6761;
+      --line: #e6d7cf;
+      --accent: #141413;
+      --accent-2: #d86b32;
+      --accent-3: #6c5ce7;
+      --danger: #b8422e;
+      --shadow: 0 18px 42px rgba(48, 39, 31, 0.10);
+      --soft-shadow: 0 8px 22px rgba(48, 39, 31, 0.08);
+      --bg-art:
+        linear-gradient(180deg, #fff6ef, var(--bg));
+      --texture-art:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E");
+      --texture-size: 180px 180px;
+      --texture-opacity: 0.18;
+    }
+
+    body[data-theme="bubble"] {
+      --bg: #eaf6e9;
+      --panel: #fffefa;
+      --panel-soft: #eff8ee;
+      --text: #12322d;
+      --muted: #5c756b;
+      --line: #cfe2d1;
+      --accent: #2f7d5a;
+      --accent-2: #f3cd63;
+      --accent-3: #6b8fcf;
+      --shadow: 0 18px 42px rgba(48, 101, 73, 0.12);
+      --soft-shadow: 0 8px 22px rgba(48, 101, 73, 0.09);
+      --bg-art:
+        radial-gradient(circle at 8% 18%, rgba(247, 211, 112, 0.32) 0 88px, transparent 90px),
+        radial-gradient(circle at 84% 14%, rgba(247, 211, 112, 0.24) 0 118px, transparent 120px),
+        radial-gradient(circle at 88% 76%, rgba(247, 211, 112, 0.22) 0 150px, transparent 152px),
+        radial-gradient(circle at 20% 82%, rgba(247, 211, 112, 0.18) 0 120px, transparent 122px),
+        linear-gradient(180deg, #f9fcf4, var(--bg));
+      --texture-art: radial-gradient(circle, rgba(247, 211, 112, 0.4) 0 2px, transparent 2.5px);
+      --texture-size: 88px 88px;
+      --texture-opacity: 0.12;
+    }
+
+    body[data-theme="plain"] {
+      --bg: #f4f4f4;
       --panel: #ffffff;
-      --panel-soft: #eef5ef;
-      --text: #18201b;
-      --muted: #657068;
-      --line: #dce4dd;
-      --accent: #31765a;
-      --accent-2: #d77c3f;
-      --accent-3: #5166a5;
-      --danger: #b64a4a;
-      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+      --panel-soft: #ededed;
+      --text: #111111;
+      --muted: #666666;
+      --line: #d7d7d7;
+      --accent: #111111;
+      --accent-2: #555555;
+      --accent-3: #333333;
+      --shadow: 0 16px 34px rgba(0, 0, 0, 0.08);
+      --soft-shadow: 0 7px 18px rgba(0, 0, 0, 0.06);
+      --bg-art: linear-gradient(180deg, #ffffff, var(--bg));
+      --texture-art: none;
+      --texture-size: auto;
+      --texture-opacity: 0;
     }
 
     * {
@@ -28,9 +76,7 @@
       position: relative;
       margin: 0;
       min-height: 100vh;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
-        var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
       letter-spacing: 0;
@@ -42,13 +88,7 @@
       inset: 0;
       z-index: -2;
       pointer-events: none;
-      background:
-        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
-        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
-        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
-        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
-        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
-        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+      background: var(--bg-art);
     }
 
     body::after {
@@ -57,13 +97,47 @@
       inset: 0;
       z-index: -1;
       pointer-events: none;
-      opacity: 0.48;
-      background-image:
-        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
-        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
-      background-size: 260px 260px, 310px 310px;
-      background-position: right 76px top 68px, left 54px bottom 80px;
-      background-repeat: no-repeat;
+      opacity: var(--texture-opacity);
+      background-image: var(--texture-art);
+      background-size: var(--texture-size);
+      background-position: left top, center, center;
+      background-repeat: repeat;
+    }
+
+    body[data-theme="paper"] .card,
+    body[data-theme="paper"] .panel,
+    body[data-theme="paper"] details,
+    body[data-theme="paper"] .segment-card,
+    body[data-theme="paper"] .ledger-card,
+    body[data-theme="paper"] .result-card,
+    body[data-theme="paper"] .rate-box,
+    body[data-theme="paper"] .supplement-body {
+      background-color: rgba(255, 250, 247, 0.94);
+    }
+
+    body[data-theme="bubble"] .card,
+    body[data-theme="bubble"] .panel,
+    body[data-theme="bubble"] details,
+    body[data-theme="bubble"] .segment-card,
+    body[data-theme="bubble"] .result-card,
+    body[data-theme="bubble"] .rate-box,
+    body[data-theme="bubble"] .supplement-body {
+      background-color: rgba(255, 254, 250, 0.95);
+    }
+
+    body[data-theme="plain"] .card,
+    body[data-theme="plain"] .panel,
+    body[data-theme="plain"] details,
+    body[data-theme="plain"] .segment-card,
+    body[data-theme="plain"] .ledger-card,
+    body[data-theme="plain"] .result-card,
+    body[data-theme="plain"] .rate-box,
+    body[data-theme="plain"] .supplement-body,
+    body[data-theme="plain"] .contribution-group.personal,
+    body[data-theme="plain"] .contribution-group.employer {
+      background: #ffffff;
+      border-color: var(--line);
+      box-shadow: var(--shadow);
     }
 
     button,
@@ -88,6 +162,41 @@
       margin-bottom: 18px;
     }
 
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .theme-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(252, 251, 250, 0.78);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .theme-chip {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .theme-chip.is-active {
+      background: var(--accent);
+      color: #fffaf5;
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(30px, 5vw, 48px);
@@ -107,9 +216,9 @@
       align-items: center;
       justify-content: center;
       padding: 0 14px;
-      border: 1px solid #c9d5cc;
-      border-radius: 8px;
-      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fffdfb;
       color: var(--text);
       text-decoration: none;
       font-weight: 760;
@@ -120,7 +229,7 @@
     .btn.primary {
       border-color: var(--accent);
       background: var(--accent);
-      color: #fff;
+      color: #fffaf5;
     }
 
     .btn.danger {
@@ -137,9 +246,9 @@
     .card,
     .panel,
     details {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(252, 251, 250, 0.94);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 32px;
       box-shadow: var(--shadow);
     }
 
@@ -229,7 +338,7 @@
       margin-top: 16px;
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 28px;
       background: var(--panel-soft);
       box-shadow: none;
     }
@@ -242,8 +351,8 @@
       margin-top: 12px;
       padding: 0;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.78);
+      border-radius: 28px;
+      background: rgba(252, 251, 250, 0.78);
       box-shadow: none;
     }
 
@@ -273,18 +382,18 @@
       gap: 12px;
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.72);
+      border-radius: 28px;
+      background: rgba(252, 251, 250, 0.78);
     }
 
     .contribution-group.personal {
-      border-color: rgba(49, 118, 90, 0.28);
-      background: rgba(238, 245, 239, 0.82);
+      border-color: rgba(20, 20, 19, 0.14);
+      background: #f7f1ea;
     }
 
     .contribution-group.employer {
-      border-color: rgba(81, 102, 165, 0.25);
-      background: rgba(241, 244, 255, 0.72);
+      border-color: rgba(108, 92, 231, 0.18);
+      background: #f5f2fb;
     }
 
     .group-title {
@@ -345,9 +454,9 @@
       width: 100%;
       min-height: 42px;
       padding: 0 12px;
-      border: 1px solid #c9d5cc;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fffdfb;
       color: var(--text);
     }
 
@@ -378,8 +487,8 @@
       gap: 12px;
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      border-radius: 24px;
+      background: #fffdfb;
     }
 
     .segment-title {
@@ -415,9 +524,9 @@
 
     .empty {
       padding: 18px;
-      border: 1px dashed #c9d5cc;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.72);
+      border: 1px dashed var(--line);
+      border-radius: 24px;
+      background: rgba(252, 251, 250, 0.72);
       color: var(--muted);
       text-align: center;
     }
@@ -432,7 +541,7 @@
     .result {
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 24px;
       background: var(--panel-soft);
     }
 
@@ -452,17 +561,17 @@
     .ledger-card {
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 24px;
     }
 
     .ledger-card.personal {
-      border-color: rgba(49, 118, 90, 0.28);
-      background: rgba(238, 245, 239, 0.82);
+      border-color: rgba(20, 20, 19, 0.14);
+      background: #f7f1ea;
     }
 
     .ledger-card.employer {
-      border-color: rgba(81, 102, 165, 0.25);
-      background: rgba(241, 244, 255, 0.72);
+      border-color: rgba(108, 92, 231, 0.18);
+      background: #f5f2fb;
     }
 
     .ledger-card h3 {
@@ -497,8 +606,8 @@
       margin-top: 14px;
       padding: 12px 14px;
       border: 1px solid rgba(215, 124, 63, 0.3);
-      border-radius: 8px;
-      background: rgba(255, 243, 224, 0.72);
+      border-radius: 24px;
+      background: #fff4ec;
       color: #725139;
       font-size: 13px;
       line-height: 1.6;
@@ -561,7 +670,14 @@
         <h1>收入档案</h1>
         <p class="subtitle">把税前收入、社保医保和公积金都收进一个本地小账本。</p>
       </div>
-      <a class="back" href="index.html">返回主页</a>
+      <div class="actions">
+        <div class="theme-switch" aria-label="视觉主题">
+          <button class="theme-chip is-active" type="button" data-theme-choice="paper">纸感</button>
+          <button class="theme-chip" type="button" data-theme-choice="bubble">泡泡</button>
+          <button class="theme-chip" type="button" data-theme-choice="plain">极简</button>
+        </div>
+        <a class="back" href="index.html">返回仪表盘</a>
+      </div>
     </header>
 
     <section class="summary" aria-label="累计概览">
@@ -876,6 +992,21 @@
   </main>
 
   <script>
+    const THEME_STORAGE_KEY = "salaryDashboardTheme.v1";
+    const themeButtons = document.querySelectorAll("[data-theme-choice]");
+    function applyTheme(theme) {
+      const safeTheme = ["paper", "bubble", "plain"].includes(theme) ? theme : "paper";
+      document.body.dataset.theme = safeTheme;
+      themeButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.themeChoice === safeTheme);
+      });
+      localStorage.setItem(THEME_STORAGE_KEY, safeTheme);
+    }
+    applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || "paper");
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
+    });
+
     const PROFILE_KEY = "salaryDashboardIncomeProfile.v1";
     const SEGMENTS_KEY = "salaryDashboardIncomeSegments.v1";
     const DEFAULT_PROFILE = {

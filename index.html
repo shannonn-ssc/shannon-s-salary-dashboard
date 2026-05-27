@@ -7,17 +7,66 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f6f2;
+      --bg: #ffeee0;
+      --panel: #fffaf7;
+      --panel-soft: #f8eee8;
+      --text: #1d1b19;
+      --muted: #6f6761;
+      --line: #e6d7cf;
+      --accent: #141413;
+      --accent-2: #d86b32;
+      --accent-3: #6c5ce7;
+      --danger: #b8422e;
+      --shadow: 0 18px 42px rgba(48, 39, 31, 0.10);
+      --soft-shadow: 0 8px 22px rgba(48, 39, 31, 0.08);
+      --bg-art:
+        linear-gradient(180deg, #fff6ef, var(--bg));
+      --texture-art:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E");
+      --texture-size: 180px 180px;
+      --texture-opacity: 0.18;
+    }
+
+    body[data-theme="bubble"] {
+      --bg: #eaf6e9;
+      --panel: #fffefa;
+      --panel-soft: #eff8ee;
+      --text: #12322d;
+      --muted: #5c756b;
+      --line: #cfe2d1;
+      --accent: #2f7d5a;
+      --accent-2: #f3cd63;
+      --accent-3: #6b8fcf;
+      --shadow: 0 18px 42px rgba(48, 101, 73, 0.12);
+      --soft-shadow: 0 8px 22px rgba(48, 101, 73, 0.09);
+      --bg-art:
+        radial-gradient(circle at 8% 18%, rgba(247, 211, 112, 0.32) 0 88px, transparent 90px),
+        radial-gradient(circle at 84% 14%, rgba(247, 211, 112, 0.24) 0 118px, transparent 120px),
+        radial-gradient(circle at 88% 76%, rgba(247, 211, 112, 0.22) 0 150px, transparent 152px),
+        radial-gradient(circle at 20% 82%, rgba(247, 211, 112, 0.18) 0 120px, transparent 122px),
+        linear-gradient(180deg, #f9fcf4, var(--bg));
+      --texture-art:
+        radial-gradient(circle, rgba(247, 211, 112, 0.4) 0 2px, transparent 2.5px);
+      --texture-size: 88px 88px;
+      --texture-opacity: 0.12;
+    }
+
+    body[data-theme="plain"] {
+      --bg: #f4f4f4;
       --panel: #ffffff;
-      --panel-soft: #eef5ef;
-      --text: #18201b;
-      --muted: #657068;
-      --line: #dce4dd;
-      --accent: #31765a;
-      --accent-2: #d77c3f;
-      --accent-3: #5166a5;
-      --danger: #b64a4a;
-      --shadow: 0 18px 45px rgba(24, 32, 27, 0.09);
+      --panel-soft: #ededed;
+      --text: #111111;
+      --muted: #666666;
+      --line: #d7d7d7;
+      --accent: #111111;
+      --accent-2: #555555;
+      --accent-3: #333333;
+      --shadow: 0 16px 34px rgba(0, 0, 0, 0.08);
+      --soft-shadow: 0 7px 18px rgba(0, 0, 0, 0.06);
+      --bg-art: linear-gradient(180deg, #ffffff, var(--bg));
+      --texture-art: none;
+      --texture-size: auto;
+      --texture-opacity: 0;
     }
 
     * {
@@ -28,9 +77,7 @@
       position: relative;
       margin: 0;
       min-height: 100vh;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 246, 242, 0.9)),
-        var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
       letter-spacing: 0;
@@ -42,13 +89,7 @@
       inset: 0;
       z-index: -2;
       pointer-events: none;
-      background:
-        radial-gradient(circle at 12% 18%, rgba(255, 231, 157, 0.18) 0 42px, transparent 44px),
-        radial-gradient(circle at 84% 14%, rgba(255, 238, 181, 0.16) 0 58px, transparent 60px),
-        radial-gradient(circle at 90% 72%, rgba(255, 231, 157, 0.15) 0 74px, transparent 76px),
-        radial-gradient(circle at 18% 84%, rgba(255, 240, 188, 0.14) 0 62px, transparent 64px),
-        radial-gradient(circle at 56% 36%, rgba(255, 231, 157, 0.09) 0 50px, transparent 52px),
-        linear-gradient(180deg, rgba(245, 250, 242, 0.9), rgba(232, 243, 231, 0.92));
+      background: var(--bg-art);
     }
 
     body::after {
@@ -57,13 +98,55 @@
       inset: 0;
       z-index: -1;
       pointer-events: none;
-      opacity: 0.48;
-      background-image:
-        radial-gradient(circle, rgba(255, 231, 157, 0.18) 0 14px, transparent 15px),
-        radial-gradient(circle, rgba(255, 238, 181, 0.14) 0 9px, transparent 10px);
-      background-size: 260px 260px, 310px 310px;
-      background-position: right 76px top 68px, left 54px bottom 80px;
-      background-repeat: no-repeat;
+      opacity: var(--texture-opacity);
+      background-image: var(--texture-art);
+      background-size: var(--texture-size);
+      background-position: left top, center, center;
+      background-repeat: repeat;
+    }
+
+    body[data-theme="paper"] .panel,
+    body[data-theme="paper"] .metric,
+    body[data-theme="paper"] .segment,
+    body[data-theme="paper"] .mood-options,
+    body[data-theme="paper"] .mood-btn,
+    body[data-theme="paper"] .backup-content {
+      background-color: rgba(255, 250, 247, 0.94);
+    }
+
+    body[data-theme="bubble"] .panel,
+    body[data-theme="bubble"] .metric,
+    body[data-theme="bubble"] .segment,
+    body[data-theme="bubble"] .mood-options,
+    body[data-theme="bubble"] .mood-btn,
+    body[data-theme="bubble"] .backup-content {
+      background-color: rgba(255, 254, 250, 0.95);
+    }
+
+    body[data-theme="plain"] .panel,
+    body[data-theme="plain"] .metric,
+    body[data-theme="plain"] .segment,
+    body[data-theme="plain"] .quick-link,
+    body[data-theme="plain"] .mood-options,
+    body[data-theme="plain"] .mood-btn,
+    body[data-theme="plain"] .backup-content {
+      background: #ffffff;
+      border-color: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    body[data-theme="plain"] .action-summary,
+    body[data-theme="plain"] .action-calendar,
+    body[data-theme="plain"] .action-moyu,
+    body[data-theme="plain"] .action-income {
+      background: #ffffff;
+    }
+
+    body[data-theme="plain"] .bar span,
+    body[data-theme="plain"] .bar.today span,
+    body[data-theme="plain"] .bar.morning span,
+    body[data-theme="plain"] .bar.afternoon span {
+      background: #111111;
     }
 
     button,
@@ -88,6 +171,39 @@
       margin-bottom: 18px;
     }
 
+    .topbar-side {
+      display: grid;
+      justify-items: end;
+      gap: 10px;
+    }
+
+    .theme-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(252, 251, 250, 0.78);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .theme-chip {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .theme-chip.is-active {
+      background: var(--accent);
+      color: #fffaf5;
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 44px);
@@ -110,14 +226,14 @@
       padding: 0 14px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.68);
+      background: rgba(252, 251, 250, 0.78);
       color: var(--muted);
       white-space: nowrap;
       line-height: 1.18;
     }
 
     .date-pill strong {
-      color: #48645a;
+      color: var(--text);
       font-size: 15px;
     }
 
@@ -132,9 +248,9 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(252, 251, 250, 0.94);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 32px;
       box-shadow: var(--shadow);
     }
 
@@ -221,9 +337,9 @@
       place-items: center;
       flex: 0 0 auto;
       border: 1px solid #c9d5cc;
-      border-radius: 7px;
+      border-radius: 999px;
       color: var(--accent);
-      background: #fff;
+      background: var(--panel);
     }
 
     .settings-actions {
@@ -286,9 +402,9 @@
       width: 100%;
       min-height: 42px;
       padding: 9px 11px;
-      border: 1px solid #cdd8cf;
-      border-radius: 7px;
-      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fffdfb;
       color: var(--text);
       outline: none;
     }
@@ -296,7 +412,7 @@
     .field input:focus,
     .field select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(49, 118, 90, 0.14);
+      box-shadow: 0 0 0 3px rgba(243, 115, 56, 0.16);
     }
 
     .segmented {
@@ -310,9 +426,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #cdd8cf;
-      border-radius: 7px;
-      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fffdfb;
       color: var(--muted);
       cursor: pointer;
       user-select: none;
@@ -328,8 +444,8 @@
 
     .segmented label:has(input:checked) {
       border-color: var(--accent);
-      background: var(--panel-soft);
-      color: var(--accent);
+      background: var(--accent);
+      color: #fffaf5;
     }
 
     .time-grid {
@@ -347,9 +463,9 @@
     .warning {
       display: none;
       padding: 10px 11px;
-      border: 1px solid #efcfb9;
-      border-radius: 7px;
-      background: #fff6ee;
+      border: 1px solid rgba(243, 115, 56, 0.25);
+      border-radius: 22px;
+      background: #fff4ec;
       color: #7f421d;
       font-size: 13px;
       line-height: 1.55;
@@ -375,7 +491,8 @@
       padding: 16px;
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 28px;
+      box-shadow: var(--soft-shadow);
       display: grid;
       align-content: space-between;
       gap: 12px;
@@ -432,8 +549,8 @@
       height: 16px;
       overflow: hidden;
       border-radius: 999px;
-      background: #e4ebe5;
-      border: 1px solid #d6e1d8;
+      background: #ece6e0;
+      border: 1px solid #ded6cf;
     }
 
     .bar span {
@@ -441,12 +558,12 @@
       width: 0%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--accent), #6fb78a);
+      background: linear-gradient(90deg, #8ed7c6, #f8c66b);
       transition: width 300ms ease;
     }
 
     .bar.today span {
-      background: linear-gradient(90deg, var(--accent-2), #e3ad63);
+      background: linear-gradient(90deg, #9fd9f2, #ffd37a);
     }
 
     .day-segments {
@@ -460,9 +577,9 @@
       gap: 8px;
       min-width: 0;
       padding: 12px;
-      border: 1px solid #dce4dd;
-      border-radius: 8px;
-      background: #fbfcfb;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fffdfb;
     }
 
     .segment-head {
@@ -492,11 +609,11 @@
     }
 
     .bar.morning span {
-      background: linear-gradient(90deg, var(--accent-3), #8493c8);
+      background: linear-gradient(90deg, #a7d8ff, #bdb2ff);
     }
 
     .bar.afternoon span {
-      background: linear-gradient(90deg, var(--accent-2), #e3ad63);
+      background: linear-gradient(90deg, #ffd37a, #ffab8a);
     }
 
     .widgets {
@@ -526,6 +643,11 @@
       gap: 10px;
     }
 
+    .quote .button-row .btn {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
     .action-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -546,8 +668,8 @@
       gap: 4px;
       width: 100%;
       padding: 10px 12px;
-      border: 1px solid #c9d5cc;
-      border-radius: 8px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
       color: var(--text);
       text-align: left;
       text-decoration: none;
@@ -563,22 +685,22 @@
     }
 
     .action-mood {
-      background: rgba(255, 241, 181, 0.58);
+      background: #fff4ec;
       border-color: rgba(215, 124, 63, 0.28);
     }
 
     .action-calendar {
-      background: rgba(238, 245, 239, 0.9);
-      border-color: rgba(49, 118, 90, 0.24);
+      background: #f7f1ea;
+      border-color: rgba(20, 20, 19, 0.12);
     }
 
     .action-moyu {
-      background: rgba(241, 244, 255, 0.84);
-      border-color: rgba(81, 102, 165, 0.22);
+      background: #f5f2fb;
+      border-color: rgba(108, 92, 231, 0.20);
     }
 
     .action-income {
-      background: rgba(255, 245, 235, 0.86);
+      background: #fff7df;
       border-color: rgba(215, 124, 63, 0.22);
     }
 
@@ -636,8 +758,8 @@
       gap: 8px;
       padding: 10px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.96);
+      border-radius: 28px;
+      background: rgba(252, 251, 250, 0.96);
       box-shadow: var(--shadow);
       opacity: 0;
       transform: translateY(8px);
@@ -656,9 +778,9 @@
     .mood-btn {
       width: 44px;
       height: 44px;
-      border: 1px solid #c9d5cc;
+      border: 1px solid var(--line);
       border-radius: 999px;
-      background: #fff;
+      background: #fffdfb;
       cursor: pointer;
       font-size: 21px;
       line-height: 1;
@@ -666,7 +788,7 @@
 
     .mood-btn.is-active {
       border-color: var(--accent);
-      background: #eef7f0;
+      background: #fff4ec;
     }
 
     .mood-effect {
@@ -687,7 +809,7 @@
       position: absolute;
       top: -48px;
       left: var(--x);
-      color: var(--effect-color, rgba(49, 118, 90, 0.68));
+      color: var(--effect-color, rgba(20, 20, 19, 0.68));
       font-size: var(--size, 20px);
       font-weight: 800;
       animation: moodFall var(--duration, 1800ms) linear forwards;
@@ -705,9 +827,9 @@
     .btn {
       min-height: 38px;
       padding: 0 13px;
-      border: 1px solid #c9d5cc;
-      border-radius: 7px;
-      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fffdfb;
       color: var(--text);
       cursor: pointer;
       font-weight: 700;
@@ -716,7 +838,7 @@
     .btn.primary {
       border-color: var(--accent);
       background: var(--accent);
-      color: #fff;
+      color: #fffaf5;
     }
 
     .btn:hover {
@@ -812,7 +934,14 @@
         <h1>今日打工小账本</h1>
         <p class="subtitle" id="dailyLine">今天也要把班上得有理有据。</p>
       </div>
-      <div class="date-pill" id="currentDate">--</div>
+      <div class="topbar-side">
+        <div class="theme-switch" aria-label="视觉主题">
+          <button class="theme-chip is-active" type="button" data-theme-choice="paper">纸感</button>
+          <button class="theme-chip" type="button" data-theme-choice="bubble">泡泡</button>
+          <button class="theme-chip" type="button" data-theme-choice="plain">极简</button>
+        </div>
+        <div class="date-pill" id="currentDate">--</div>
+      </div>
     </header>
 
     <div class="layout" id="layout">
@@ -1026,6 +1155,21 @@
   <div class="mood-effect" id="moodEffect" aria-hidden="true"></div>
 
   <script>
+    const THEME_STORAGE_KEY = "salaryDashboardTheme.v1";
+    const themeButtons = document.querySelectorAll("[data-theme-choice]");
+    function applyTheme(theme) {
+      const safeTheme = ["paper", "bubble", "plain"].includes(theme) ? theme : "paper";
+      document.body.dataset.theme = safeTheme;
+      themeButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.themeChoice === safeTheme);
+      });
+      localStorage.setItem(THEME_STORAGE_KEY, safeTheme);
+    }
+    applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || "paper");
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
+    });
+
     const STORAGE_KEY = "salaryDashboardSettings.v1";
     const MOOD_STORAGE_KEY = "salaryDashboardMoodLog.v1";
     const INCOME_PROFILE_KEY = "salaryDashboardIncomeProfile.v1";
@@ -1155,8 +1299,8 @@
       const itemSets = {
         escape: { items: ["☔", "🌧️", "💧", "先撤", "🏃"], color: "rgba(81, 102, 165, 0.62)", count: 42 },
         annoyed: { items: ["☔", "🌧️", "💧", "烦", "😵"], color: "rgba(81, 102, 165, 0.58)", count: 40 },
-        calm: { items: ["🌿", "🍃", "☁️", "呼", "😌"], color: "rgba(49, 118, 90, 0.56)", count: 34 },
-        good: { items: ["🌿", "🍃", "✨", "不错", "好耶"], color: "rgba(49, 118, 90, 0.66)", count: 38 },
+        calm: { items: ["🌿", "🍃", "☁️", "呼", "😌"], color: "rgba(20, 20, 19, 0.56)", count: 34 },
+        good: { items: ["🌿", "🍃", "✨", "不错", "好耶"], color: "rgba(243, 115, 56, 0.66)", count: 38 },
         earned: { items: ["💰", "👏", "✨", "到账", "好耶"], color: "rgba(215, 124, 63, 0.72)", count: 42 }
       };
       const config = itemSets[mood] || itemSets.calm;
@@ -1222,7 +1366,7 @@
     }
 
     function collectBackupData() {
-      const keys = [STORAGE_KEY, MOOD_STORAGE_KEY, INCOME_PROFILE_KEY, INCOME_SEGMENTS_KEY];
+      const keys = [STORAGE_KEY, MOOD_STORAGE_KEY, INCOME_PROFILE_KEY, INCOME_SEGMENTS_KEY, THEME_STORAGE_KEY];
       for (let index = 0; index < localStorage.length; index += 1) {
         const key = localStorage.key(index);
         if (key && key.startsWith(HOLIDAY_CACHE_PREFIX)) keys.push(key);
@@ -1272,6 +1416,7 @@
             key === MOOD_STORAGE_KEY ||
             key === INCOME_PROFILE_KEY ||
             key === INCOME_SEGMENTS_KEY ||
+            key === THEME_STORAGE_KEY ||
             key.startsWith(HOLIDAY_CACHE_PREFIX)
           );
 
@@ -1298,7 +1443,7 @@
     }
 
     function clearLocalDashboardData() {
-      const keys = [STORAGE_KEY, MOOD_STORAGE_KEY, INCOME_PROFILE_KEY, INCOME_SEGMENTS_KEY];
+      const keys = [STORAGE_KEY, MOOD_STORAGE_KEY, INCOME_PROFILE_KEY, INCOME_SEGMENTS_KEY, THEME_STORAGE_KEY];
       for (let index = 0; index < localStorage.length; index += 1) {
         const key = localStorage.key(index);
         if (key && key.startsWith(HOLIDAY_CACHE_PREFIX)) keys.push(key);
